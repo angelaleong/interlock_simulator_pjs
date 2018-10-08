@@ -6,6 +6,8 @@ float pixels_per_meter = 4.705;
 void setup() {
   size(1280, 740, P2D);
   test = new Car();
+  //pixelDensity(2);
+  test.set_init_position(new PVector(0,32)).set_init_orientation(PI/2);
 }
 
 void draw() {
@@ -19,10 +21,10 @@ void draw() {
 
 void keyPressed() {
   if (key == 'a') {
-    test.boolean_steering(-0.01);
+    test.keyboard_steering(-0.01);
   }
   if (key == 'd') {
-    test.boolean_steering(0.01);
+    test.keyboard_steering(0.01);
   }
   if (key == 'w') {
     test.accelerate(8);
@@ -40,7 +42,7 @@ void keyPressed() {
 
 void keyReleased() {
   if (key == 'a' || key == 'd') {
-    test.boolean_steering(0);
+    test.keyboard_steering(0);
   }
   if (key == 'w') {
     test.accelerate(0);
