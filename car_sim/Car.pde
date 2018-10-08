@@ -69,6 +69,7 @@ class Car{
     Car timestep(float dt){
         speed = (speed + acceleration*dt > 0) ? speed + acceleration * dt : 0;
         float steer_dt = MAX_STEERING_DELTA*dt; 
+        
         if (ongoing_steer != 0){
             if (abs(steering_command + ongoing_steer) < PI/6){
                 steering_command += ongoing_steer;
@@ -78,19 +79,28 @@ class Car{
         if (steering_angle < steering_command && steering_angle + steer_dt < steering_command){
             steering_angle += steer_dt;
         }
+        
         else if (steering_angle > steering_command && steering_angle - steer_dt > steering_command){
             steering_angle -= steer_dt;
         } else {
           steering_angle = steering_command;
         }
+        
+        
 
         float r = ackermann_turn_radius(steering_angle);  // meters
         
         // adjust orientation and position if turning
         if (r != 0){
             float th = abs(dt*speed/r);
+            float phi = atan2(abs(rear_axle_offset), abs(r));
             PVector d = new PVector(abs(r) * sin(th), r - r*cos(th));
-            d.rotate(orientation);
+            d.rotate(orientation+phi*r/abs(r));
+            
+            
+            //d.rotate(orientation); // how much the center of the rear axle is suppoesd to move
+            //                       // which is different from how the centroid of the car will move
+            
             position.add(d);
             orientation += r*th/abs(r);
         } else {
@@ -116,6 +126,7 @@ class Car{
         fill(paint);
         rect(0,0, LENGTH*pixels_per_meter, WIDTH*pixels_per_meter);
 
+        // ackermann steering 
         stroke(0);
         line(rear_axle_offset*pixels_per_meter, 0, 
             rear_axle_offset*pixels_per_meter,ackermann_turn_radius(steering_angle)*pixels_per_meter);

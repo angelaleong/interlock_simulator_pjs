@@ -1,10 +1,12 @@
 # **ProcessingJS Interlock Simulator**
 
 ## **What are Processing and ProcessingJS?**
-### **[Processing](https://processing.org/)**: A language for graphic design and animation, built on top of Java and uses Java syntax.
-### **[ProcessingJS](http://processingjs.org/)**: Processing ported to JavaScript for ease of web use, can run native Processing files (*.pde) as JavaScript, just develop as you would with Processing and deploy using ProcessingJS. **WARNING** since ProcessingJS is in Javascript, it cannot import libraries written for Processing since those libraries are in Java.
+**[Processing](https://processing.org/)**: A language for graphic design and animation, built on top of Java and uses Java syntax.
+
+**[ProcessingJS](http://processingjs.org/)**: Processing ported to JavaScript for ease of web use, can run native Processing files (*.pde) as JavaScript, just develop as you would with Processing and deploy using ProcessingJS. **WARNING** since ProcessingJS is in Javascript, it cannot import libraries written for Processing since those libraries are in Java.
 
 ## **Simulator Overview**
+
 `processing.min.js` is the ProcessingJS source code, this is necessary for html to properly interpret and run native Processing code.
 
 `interlock_simulator.html` contains all the html necessary to run the simulator. At minimum it only requires 2 lines:
@@ -29,7 +31,7 @@ for ease of development and debugging. Inside of `car_sim` we have:
 
 ## **Running the simulator**
 Once you've cloned the repo go to repo directory and run `python -m SimpleHTTPServer` (any Mac should have this natively installed). This will
-serve that directory on localhost. Point your browser to **http://localhost:8000/interlock_simulator.html** to start the simulation.
+serve that directory on localhost. Point your browser to **http://localhost:8000/interlock_simulator.html** to start the simulation. **Works better on Chrome than Safari**
 
 ## **Using the simulator**
 Currently, the simulator takes in steering commands via the A and D keys for left and rightward steering, respectively. W and S accelerate and decelerate. Make sure to click on the animation area first before trying keyboard input.
