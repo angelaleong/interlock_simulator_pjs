@@ -35,3 +35,8 @@ serve that directory on localhost. Point your browser to **http://localhost:8000
 
 ## **Using the simulator**
 Currently, the simulator takes in steering commands via the A and D keys for left and rightward steering, respectively. W and S accelerate and decelerate. Make sure to click on the animation area first before trying keyboard input.
+
+## **Issues Encountered**
+ - Cannot import Processing libraries
+ - IntList.hasValue() does not exist in ProcessingJS
+ - ArrayList.contains() seems to be broken
