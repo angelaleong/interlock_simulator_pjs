@@ -9,15 +9,22 @@ float pixels_per_meter = 4.705;
 void setup() {
   size(1280, 740, P2D);
   test = new Car();
-  test.set_init_position(new PVector(0, 32)).set_init_orientation(-PI/4).set_name("test");
+  test.set_init_position(new PVector(0, 32))
+    .set_init_orientation(-PI/4)
+    .set_name("test");
 
   stationary = new Car();
-  stationary.set_init_position(new PVector(0, -8)).set_init_speed(0).set_colour(color(0, 0, 255)).set_name("stationary");
+  stationary.set_init_position(new PVector(0, -8))
+    .set_init_speed(0)
+    .set_colour(color(0, 0, 255))
+    .set_name("stationary");
 
   w = new World(width, height);
-  w.coordinate_offset(width/2, height/2);
-  w.add_car(stationary);
-  w.add_car(test);
+  w.coordinate_offset(width/2, height/2)
+    .add_car(stationary)
+    .add_car(test);
+
+  // turn off aliasing
   noSmooth();
 }
 

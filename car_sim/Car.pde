@@ -142,7 +142,8 @@ class Car {
         a.rotate(orientation);
         int x_index = int(position.x*pixels_per_meter+a.x)+int(world.x_offset);
         int y_index = int(position.y*pixels_per_meter+a.y)+int(world.y_offset);
-        if (x_index < 0 || x_index >= world.w-1 || y_index < 0 || y_index >= world.h-1) {
+        if (x_index < 0 || x_index >= world.w-1 || 
+            y_index < 0 || y_index >= world.h-1) {
           continue;
         }
         PVector loc = new PVector(x_index, y_index);
@@ -160,8 +161,9 @@ class Car {
 
   void steering_step(float dt) {
     /*
-    Adjust the steering angle based on input, based on a number of seconds elapsed (dt)
-     */
+    Adjust the steering angle based on input, based on a number of seconds 
+    elapsed (dt)
+    */
     float steer_dt = MAX_STEERING_DELTA*dt; 
 
     // increment steering if button pressed
@@ -172,9 +174,11 @@ class Car {
     }
 
     // steering will increase/decrease until matches input steering command,
-    if (steering_angle < steering_command && steering_angle + steer_dt < steering_command) {
+    if (steering_angle < steering_command && 
+        steering_angle + steer_dt < steering_command) {
       steering_angle += steer_dt;
-    } else if (steering_angle > steering_command && steering_angle - steer_dt > steering_command) {
+    } else if (steering_angle > steering_command && 
+               steering_angle - steer_dt > steering_command) {
       steering_angle -= steer_dt;
     } else {
       steering_angle = steering_command;
@@ -194,26 +198,33 @@ class Car {
     fill(paint);
     //noFill();
     //stroke(0);
-    rect(0, 0, LENGTH*pixels_per_meter, int(WIDTH*pixels_per_meter)%2==0 ? int(WIDTH*pixels_per_meter) : int(WIDTH*pixels_per_meter) + 1);
+    rect(0, 0, LENGTH*pixels_per_meter, int(WIDTH*pixels_per_meter)%2==0 ?
+         int(WIDTH*pixels_per_meter) : int(WIDTH*pixels_per_meter) + 1);
 
     // rear wheels
     fill(0);
     rectMode(CENTER);
-    rect(rear_axle_offset*pixels_per_meter, int(WIDTH*pixels_per_meter)*0.5, tire_diameter*pixels_per_meter, min(int(tire_width*pixels_per_meter), 2));
-    rect(rear_axle_offset*pixels_per_meter, int(-WIDTH*pixels_per_meter)*0.5, tire_diameter*pixels_per_meter, min(int(tire_width*pixels_per_meter), 2));
+    rect(rear_axle_offset*pixels_per_meter, int(WIDTH*pixels_per_meter)*0.5,
+      tire_diameter*pixels_per_meter, min(int(tire_width*pixels_per_meter), 2));
+    rect(rear_axle_offset*pixels_per_meter, int(-WIDTH*pixels_per_meter)*0.5,
+      tire_diameter*pixels_per_meter, min(int(tire_width*pixels_per_meter), 2));
 
 
     // front wheels
     pushMatrix();
-    translate(front_axle_offset*pixels_per_meter, int(WIDTH*pixels_per_meter)*0.5);
+    translate(front_axle_offset*pixels_per_meter,
+      int(WIDTH*pixels_per_meter)*0.5);
     rotate(steering_angle);
-    rect(0, 0, tire_diameter*pixels_per_meter, min(tire_width*pixels_per_meter, 2));
+    rect(0, 0, tire_diameter*pixels_per_meter,
+      min(tire_width*pixels_per_meter, 2));
     popMatrix();
 
     pushMatrix();
-    translate(front_axle_offset*pixels_per_meter, int(-WIDTH*pixels_per_meter)*0.5);
+    translate(front_axle_offset*pixels_per_meter, 
+      int(-WIDTH*pixels_per_meter)*0.5);
     rotate(steering_angle);
-    rect(0, 0, tire_diameter*pixels_per_meter, min(tire_width*pixels_per_meter, 2));
+    rect(0, 0, tire_diameter*pixels_per_meter,
+      min(tire_width*pixels_per_meter, 2));
     popMatrix();
 
     draw_origin(true);
@@ -222,8 +233,8 @@ class Car {
     popMatrix();
   }
   void draw_origin(boolean draw) {
-    /*draw the car's origin, assume coordinate system centered on car centroid, aligned 
-     with car orientation*/
+    /*draw the car's origin, assume coordinate system centered on car centroid,
+     aligned with car orientation*/
     if (!draw) return;
     stroke(255, 0, 0);
     line(0, 0, 50, 0);   // positive x dir
@@ -231,18 +242,19 @@ class Car {
     line(0, 0, 0, 50);   // positive y dir
   }
   void draw_turn_radius(boolean draw) {
-    /*draw the car's turning radius, assume coordinate system centered on car centroid, aligned 
-     with car orientation*/
+    /*draw the car's turning radius, assume coordinate system centered on car 
+     centroid, aligned with car orientation*/
     if (!draw) return;
     // ackermann steering 
     stroke(0);
     line(rear_axle_offset*pixels_per_meter, 0, 
-      rear_axle_offset*pixels_per_meter, ackermann_turn_radius(steering_angle)*pixels_per_meter);
+      rear_axle_offset*pixels_per_meter,
+      ackermann_turn_radius(steering_angle)*pixels_per_meter);
   }
 
   void draw_steering_angle(boolean draw) {
-    /*draw the car's steering angle, assume coordinate system centered on car centroid, aligned 
-     with car orientation*/
+    /*draw the car's steering angle, assume coordinate system centered on car 
+    centroid, aligned with car orientation*/
     if (!draw) return;
     translate(front_axle_offset*pixels_per_meter, 0);
     rotate(steering_angle);
