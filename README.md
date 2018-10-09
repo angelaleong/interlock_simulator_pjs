@@ -35,8 +35,11 @@ for ease of development and debugging. Inside of `car_sim` we have:
  scenarios, not yet implemented)
 
 ## **Running the simulator**
-Once you've cloned the repo go to repo directory and run `python -m SimpleHTTPServer` (any Mac should have this natively installed). This will
-serve that directory on localhost. Point your browser to **http://localhost:8000/interlock_simulator.html** to start the simulation. **Works better on Chrome than Safari**
+Once you've cloned the repo go to repo directory and run
+- `python -m SimpleHTTPServer` (for Python 2)
+- `python -m http.server` (for Python 3) 
+ (Any Mac should have this natively installed.)
+This will serve that directory on localhost. Point your browser to **http://localhost:8000/interlock_simulator.html** to start the simulation. **Works better on Chrome than Safari**
 
 ## **Using the simulator**
 Currently, the simulator takes in steering commands via the A and D keys for left and rightward steering, respectively. W and S accelerate and decelerate. Make sure to click on the animation area first before trying keyboard input.
