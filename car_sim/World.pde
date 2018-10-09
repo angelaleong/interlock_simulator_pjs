@@ -32,7 +32,6 @@ class World {
     for (Car car : cars) {
       if (car.collision) {
         halt = true;
-        println(car.name);
       }
       car.timestep(dt);
     }

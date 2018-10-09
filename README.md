@@ -25,9 +25,14 @@ for ease of development and debugging. Inside of `car_sim` we have:
  - `car_sim.pde` contains the setup block and main loop.
  - `Car.pde` contains the definition of the Car class, an instance of which
  is an individual car, complete with steering, acceleration, and
- initializaiton methods.
- - `World.pde` will contain the definition of the World class, which should
- have methods to setup, run, and reset individual scenarios.
+ initializaiton methods. Each Car object must belong to a World object in order
+ to use its collision check methods.
+ - `World.pde` contains the definition of the World class, which should
+ have methods to setup, run, and reset individual scenarios. Currently, cars
+ can be added to the world, and all of them time-stepped and displayed using 
+ a single method. An occupancy grid is also implemented, allowing for collision
+ detection (currently working) and line of sight calculations (in the occluded
+ scenarios, not yet implemented)
 
 ## **Running the simulator**
 Once you've cloned the repo go to repo directory and run `python -m SimpleHTTPServer` (any Mac should have this natively installed). This will
