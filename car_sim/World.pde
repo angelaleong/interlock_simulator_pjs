@@ -9,7 +9,7 @@ class World {
   World(int w_, int h_) {
     w = w_;
     h = h_;
-    occupancy_grid = new int[w][h];  
+    occupancy_grid = new int[w][h];
   }
 
   World coordinate_offset(float x_offset_, float y_offset_) {
@@ -31,6 +31,7 @@ class World {
 
     for (Car car : cars) {
       if (car.collision) {
+        console.log("COLLISION");
         halt = true;
       }
       car.timestep(dt);

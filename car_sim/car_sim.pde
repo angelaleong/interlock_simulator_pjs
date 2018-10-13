@@ -1,5 +1,6 @@
 Car test;
 Car stationary;
+Car single_lane_follower;
 World w;
 
 
@@ -19,10 +20,18 @@ void setup() {
     .set_colour(color(0, 0, 255))
     .set_name("stationary");
 
+  single_lane_follower = new SingleLaneFollower();
+  single_lane_follower.set_init_position(new PVector(-100, -8))
+    .set_name("single_lane_follower")
+    .set_colour(color(0, 255, 0));
+
   w = new World(width, height);
   w.coordinate_offset(width/2, height/2)
     .add_car(stationary)
-    .add_car(test);
+    .add_car(test)
+    .add_car(single_lane_follower);
+
+  single_lane_follower.set_front_car_pos(0);
 
   // turn off aliasing
   noSmooth();
@@ -56,6 +65,12 @@ void keyPressed() {
   if (key == '-' || key == '_') {
     pixels_per_meter -= 1;
   }
+  if (key == 'l') {
+    single_lane_follower.accelerate(8);
+  }
+  if (key == 'k') {
+    single_lane_follower.accelerate(-8);
+  }
 }
 
 void keyReleased() {
@@ -66,6 +81,12 @@ void keyReleased() {
     test.accelerate(0);
   }
   if (key == 's') {
+    test.accelerate(0);
+  }
+  if (key == 'l') {
+    test.accelerate(0);
+  }
+  if (key == 'k') {
     test.accelerate(0);
   }
 }

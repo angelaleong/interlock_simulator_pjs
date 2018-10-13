@@ -14,13 +14,13 @@ class Car {
   float speed = 10;  // a scalar, since we're always moving in the
   // car's steering direction
 
-  float MAX_STEERING_DELTA = 1;  // maximum steering that can be applied, 
+  float MAX_STEERING_DELTA = 1;  // maximum steering that can be applied,
   // radians/s per second
   float rear_axle_offset = - 1.35;
   float front_axle_offset = 1.35;
 
   float WIDTH = 1.7;  // width in meters
-  float LENGTH = 4.5; 
+  float LENGTH = 4.5;
 
   color paint = color(255, 0, 0);
 
@@ -81,11 +81,11 @@ class Car {
 
   Car accelerate(float accel) {
     acceleration = accel;
+    console.log("new accel: " + acceleration);
     return this;
   }
 
   Car timestep(float dt) {
-    speed = (speed + acceleration*dt > 0) ? speed + acceleration * dt : 0;
     steering_step(dt);
 
     float r = ackermann_turn_radius(steering_angle);  // meters
@@ -113,8 +113,8 @@ class Car {
     /*
     Check for collisions using the world's occupancy grid
     */
-    
-    // current_occupancy is an arraylist that holds the coordinates belonging to 
+
+    // current_occupancy is an arraylist that holds the coordinates belonging to
     // this car, it starts uninitialized
     if (current_occupancy != null) {
       // deoccupy the old position of the car
@@ -125,13 +125,13 @@ class Car {
       current_occupancy = new ArrayList<PVector>();
     }
     // now we populate current_occupancy using the new position of the car
-    current_occupancy.clear();  
+    current_occupancy.clear();
 
     /*rounding may cause the same coordinate pair to appear in
-    current_occupancy, which causes false positives. Use this boolean array to 
+    current_occupancy, which causes false positives. Use this boolean array to
     keep track of which pixels were already accounted for
     */
-    boolean[][] prevent_repeats = new boolean[world.w][world.h]; 
+    boolean[][] prevent_repeats = new boolean[world.w][world.h];
 
     // loop over all the pixels inside the car
     for (float i = 0; i < int(LENGTH*pixels_per_meter); i++) {
@@ -142,7 +142,7 @@ class Car {
         a.rotate(orientation);
         int x_index = int(position.x*pixels_per_meter+a.x)+int(world.x_offset);
         int y_index = int(position.y*pixels_per_meter+a.y)+int(world.y_offset);
-        if (x_index < 0 || x_index >= world.w-1 || 
+        if (x_index < 0 || x_index >= world.w-1 ||
             y_index < 0 || y_index >= world.h-1) {
           continue;
         }
@@ -152,19 +152,19 @@ class Car {
           current_occupancy.add(loc);
           if (world.occupancy_grid[x_index][y_index] > 1) {
             collision = true;
-          } 
+          }
           prevent_repeats[x_index][y_index] = true;
-        } 
+        }
       }
     }
   }
 
   void steering_step(float dt) {
     /*
-    Adjust the steering angle based on input, based on a number of seconds 
+    Adjust the steering angle based on input, based on a number of seconds
     elapsed (dt)
     */
-    float steer_dt = MAX_STEERING_DELTA*dt; 
+    float steer_dt = MAX_STEERING_DELTA*dt;
 
     // increment steering if button pressed
     if (keyboard_steer != 0) {
@@ -174,10 +174,10 @@ class Car {
     }
 
     // steering will increase/decrease until matches input steering command,
-    if (steering_angle < steering_command && 
+    if (steering_angle < steering_command &&
         steering_angle + steer_dt < steering_command) {
       steering_angle += steer_dt;
-    } else if (steering_angle > steering_command && 
+    } else if (steering_angle > steering_command &&
                steering_angle - steer_dt > steering_command) {
       steering_angle -= steer_dt;
     } else {
@@ -220,7 +220,7 @@ class Car {
     popMatrix();
 
     pushMatrix();
-    translate(front_axle_offset*pixels_per_meter, 
+    translate(front_axle_offset*pixels_per_meter,
       int(-WIDTH*pixels_per_meter)*0.5);
     rotate(steering_angle);
     rect(0, 0, tire_diameter*pixels_per_meter,
@@ -242,18 +242,18 @@ class Car {
     line(0, 0, 0, 50);   // positive y dir
   }
   void draw_turn_radius(boolean draw) {
-    /*draw the car's turning radius, assume coordinate system centered on car 
+    /*draw the car's turning radius, assume coordinate system centered on car
      centroid, aligned with car orientation*/
     if (!draw) return;
-    // ackermann steering 
+    // ackermann steering
     stroke(0);
-    line(rear_axle_offset*pixels_per_meter, 0, 
+    line(rear_axle_offset*pixels_per_meter, 0,
       rear_axle_offset*pixels_per_meter,
       ackermann_turn_radius(steering_angle)*pixels_per_meter);
   }
 
   void draw_steering_angle(boolean draw) {
-    /*draw the car's steering angle, assume coordinate system centered on car 
+    /*draw the car's steering angle, assume coordinate system centered on car
     centroid, aligned with car orientation*/
     if (!draw) return;
     translate(front_axle_offset*pixels_per_meter, 0);
