@@ -42,7 +42,7 @@ void setup() {
 
 void draw() {
   update(mouseX, mouseY);
-  background(255);
+  background(250);
 
   // draw play/pause button
   stroke(0);
