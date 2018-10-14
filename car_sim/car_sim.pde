@@ -2,12 +2,24 @@ Car test;
 Car stationary;
 World w;
 
+int buttonX, buttonY; // position of play button
+int buttonSize = 50;
+color buttonColor, pausedButtonColor;
+color currentColor;
+boolean buttonOver = false;
+boolean paused = true;
 
 float seconds_per_frame = 1/60.0;
 float pixels_per_meter = 4.705;
 
 void setup() {
   size(1280, 740, P2D);
+  buttonColor = color(255);
+  pausedButtonColor = color(100);
+  currentColor = pausedButtonColor;
+  buttonX = width-100;
+  buttonY = height-100;
+
   test = new Car();
   test.set_init_position(new PVector(0, 32))
     .set_init_orientation(-PI/4)
@@ -29,12 +41,62 @@ void setup() {
 }
 
 void draw() {
-  w.timestep(seconds_per_frame);
+  update(mouseX, mouseY);
   background(255);
+
+  // draw play/pause button
+  stroke(0);
+  if (buttonOver) {
+    currentColor = paused ? buttonColor : pausedButtonColor;
+  } else {
+    currentColor = paused ? pausedButtonColor : buttonColor;
+  }
+
+  fill(currentColor);
+  ellipse(buttonX, buttonY, buttonSize, buttonSize);
+
+  fill(color(200));
+  triangle(buttonX-buttonSize/4, buttonY+buttonSize/3, 
+    buttonX-buttonSize/4, buttonY-buttonSize/3, 
+    buttonX+buttonSize/3, buttonY);
+
+  // check if the simulation is paused
+  if (!paused) {
+    w.halt = false;
+  } else {
+    w.halt = true;
+  }
+
+  // render world model
+  w.timestep(seconds_per_frame);
   pushMatrix();
   translate(width/2, height/2);
   w.display_cars(pixels_per_meter);
   popMatrix();
+}
+
+void update(int x, int y) {
+  if (overButton(buttonX, buttonY, buttonSize)) {
+    buttonOver = true;
+  } else {
+    buttonOver = false;
+  }
+}
+
+void mousePressed() {
+  if (buttonOver) {
+    paused = !paused;
+  }
+}
+
+void overButton(int x, int y, int d) {
+  float disX = x - mouseX;
+  float disY = y - mouseY;
+  if (sqrt(sq(disX) + sq(disY)) < d/2) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void keyPressed() {
