@@ -20,6 +20,15 @@ void setup() {
   buttonX = width-100;
   buttonY = height-100;
 
+  start();
+
+  // turn off aliasing
+  noSmooth();
+}
+
+void start() {
+  // separating start from setup so that we can
+  // restart simulation upon collision
   test = new Car();
   test.set_init_position(new PVector(0, 32))
     .set_init_orientation(-PI/4)
@@ -35,9 +44,6 @@ void setup() {
   w.coordinate_offset(width/2, height/2)
     .add_car(stationary)
     .add_car(test);
-
-  // turn off aliasing
-  noSmooth();
 }
 
 void draw() {
@@ -56,15 +62,17 @@ void draw() {
   ellipse(buttonX, buttonY, buttonSize, buttonSize);
 
   fill(color(200));
-  triangle(buttonX-buttonSize/4, buttonY+buttonSize/3, 
-    buttonX-buttonSize/4, buttonY-buttonSize/3, 
-    buttonX+buttonSize/3, buttonY);
+  
 
   // check if the simulation is paused
   if (!paused) {
     w.halt = false;
+    triangle(buttonX-buttonSize/4, buttonY+buttonSize/3, 
+      buttonX-buttonSize/4, buttonY-buttonSize/3, 
+      buttonX+buttonSize/3, buttonY);
   } else {
     w.halt = true;
+    rect(buttonX-1, buttonY, buttonSize/2, buttonSize/2);
   }
 
   // render world model
@@ -86,6 +94,9 @@ void update(int x, int y) {
 void mousePressed() {
   if (buttonOver) {
     paused = !paused;
+  } else {
+    // click on anywhere to restart
+    start();
   }
 }
 
