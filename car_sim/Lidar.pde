@@ -19,7 +19,9 @@ class Lidar {
       if (c != this.car && c.current_occupancy != null && dist(c.position.x, c.position.y, car.position.x, car.position.y) < range+dist(0, 0, c.LENGTH*0.5, c.WIDTH*0.5)+dist(0, 0, car.LENGTH*0.5, car.WIDTH*0.5)) {
         stroke(155);
         for (PVector loc : c.current_occupancy) {
+          
           boolean valid = true;
+          
           if (dist(loc.x-world.x_offset, loc.y-world.y_offset, car.position.x*pixels_per_meter, car.position.y*pixels_per_meter) <= range*pixels_per_meter) {
             ArrayList<PVector> points = bresenham(loc.x-world.x_offset, loc.y-world.y_offset, car.position.x*pixels_per_meter, car.position.y*pixels_per_meter, 1);
             for (int i = 1; i < points.size(); i++) {
@@ -56,6 +58,9 @@ class Lidar {
         }
       }
     }
+    for (Car c : visible_cars){
+      c.display_car(pixels_per_meter);
+    }
     return visible_cars;
   }
 
@@ -68,7 +73,8 @@ class Lidar {
     stroke(155);
     strokeWeight(1);
     noFill();
-    arc(0, 0, 2*range*pixels_per_meter, 2*range*pixels_per_meter, min_angle, max_angle, PIE);
+    ellipse(0, 0, 2*range*pixels_per_meter,2*range*pixels_per_meter); 
+    //arc(0, 0, 2*range*pixels_per_meter, 2*range*pixels_per_meter, min_angle, max_angle, PIE);
     //if (scans){
     //    for (float i = min_angle; i <= max_angle; i+=angular_resolution){
     //        line(0,0,range*cos(i)*pixels_per_meter, range*sin(i)*pixels_per_meter);

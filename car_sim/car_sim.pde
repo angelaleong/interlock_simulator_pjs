@@ -96,7 +96,8 @@ void draw() {
   w.timestep(seconds_per_frame);
   pushMatrix();
   translate(width/2, height/2);
-  w.display_cars(pixels_per_meter);
+  test.display_car(pixels_per_meter);
+  //w.display_cars(pixels_per_meter);
   popMatrix();
 }
 
