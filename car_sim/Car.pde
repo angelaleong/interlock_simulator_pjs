@@ -28,7 +28,19 @@ class Car {
   float tire_width = 0.215;  // meters
   float tire_diameter = 0.66;  // meters
   boolean collision = false;
+
+  Lidar lidar = null;
+
   Car() {
+  }
+
+  Car set_lidar(){
+    if (world == null){
+      println("No world defined!");
+      return this;
+    }
+    lidar = new Lidar(50, -2*PI/3.0, 2*PI/3.0, 2*PI/1000.0, world, this);
+    return this;
   }
 
   Car set_world(World new_world) {
@@ -231,6 +243,9 @@ class Car {
     draw_turn_radius(true);
     draw_steering_angle(true);
     popMatrix();
+    if (lidar != null){
+      lidar.show_boundary(true);
+    }
   }
   void draw_origin(boolean draw) {
     /*draw the car's origin, assume coordinate system centered on car centroid,

@@ -1,5 +1,5 @@
 Car test;
-Car stationary;
+Car stationary, s1, s2, s3;
 World w;
 
 int buttonX, buttonY; // position of play button
@@ -30,8 +30,8 @@ void start() {
   // separating start from setup so that we can
   // restart simulation upon collision
   test = new Car();
-  test.set_init_position(new PVector(0, 32))
-    .set_init_orientation(-PI/4)
+  test.set_init_position(new PVector(0, 64))
+    .set_init_orientation(-PI/2)
     .set_name("test");
 
   stationary = new Car();
@@ -40,10 +40,27 @@ void start() {
     .set_colour(color(0, 0, 255))
     .set_name("stationary");
 
+
+  s1 = new Car();
+  s1.set_init_position(new PVector(0, 8))
+    .set_init_speed(0)
+    .set_colour(color(0, 0, 255))
+    .set_name("s1");
+
+  s2 = new Car();
+  s2.set_init_position(new PVector(0, -16))
+    .set_init_speed(0)
+    .set_colour(color(0, 0, 255))
+    .set_name("s2");
+
+
   w = new World(width, height);
   w.coordinate_offset(width/2, height/2)
-    .add_car(stationary)
-    .add_car(test);
+    //.add_car(stationary)
+    .add_car(test)
+    .add_car(s1)
+    .add_car(s2);
+  test.set_lidar();
 }
 
 void draw() {
@@ -62,7 +79,7 @@ void draw() {
   ellipse(buttonX, buttonY, buttonSize, buttonSize);
 
   fill(color(200));
-  
+
 
   // check if the simulation is paused
   if (!paused) {
@@ -100,7 +117,7 @@ void mousePressed() {
   }
 }
 
-void overButton(int x, int y, int d) {
+boolean overButton(int x, int y, int d) {
   float disX = x - mouseX;
   float disY = y - mouseY;
   if (sqrt(sq(disX) + sq(disY)) < d/2) {
