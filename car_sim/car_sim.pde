@@ -12,6 +12,8 @@ boolean paused = true;
 float seconds_per_frame = 1/60.0;
 float pixels_per_meter = 4.705;
 
+ArrayList<Car> all_cars = new ArrayList<Car>();
+
 void setup() {
   size(1280, 740, P2D);
   buttonColor = color(255);
@@ -27,39 +29,57 @@ void setup() {
 }
 
 void start() {
+  all_cars.clear();
   // separating start from setup so that we can
   // restart simulation upon collision
   test = new Car();
-  test.set_init_position(new PVector(0, 64))
+  test.set_init_position(new PVector(20, 64))
     .set_init_orientation(-PI/2)
     .set_name("test");
+    
+  for (int i = -2; i < 3; i++){
+    for (int j = -2; j < 3; j++){
+      Car s = new Car();
+      s.set_init_speed(0)
+      .set_colour(color(0,0,255))
+      .set_init_position(new PVector(30*i, 30*j))
+      .set_init_orientation(random(2*PI));
+      all_cars.add(s);
+    }
+  }
+  //println(all_cars.size());
 
-  stationary = new Car();
-  stationary.set_init_position(new PVector(0, -8))
-    .set_init_speed(0)
-    .set_colour(color(0, 0, 255))
-    .set_name("stationary");
+  //stationary = new Car();
+  //stationary.set_init_position(new PVector(0, -8))
+  //  .set_init_speed(0)
+  //  .set_colour(color(0, 0, 255))
+  //  .set_name("stationary");
 
 
-  s1 = new Car();
-  s1.set_init_position(new PVector(0, 8))
-    .set_init_speed(0)
-    .set_colour(color(0, 0, 255))
-    .set_name("s1");
+  //s1 = new Car();
+  //s1.set_init_position(new PVector(0, 8))
+  //  .set_init_speed(0)
+  //  .set_colour(color(0, 0, 255))
+  //  .set_name("s1");
 
-  s2 = new Car();
-  s2.set_init_position(new PVector(0, -16))
-    .set_init_speed(0)
-    .set_colour(color(0, 0, 255))
-    .set_name("s2");
+  //s2 = new Car();
+  //s2.set_init_position(new PVector(0, -16))
+  //  .set_init_speed(0)
+  //  .set_colour(color(0, 0, 255))
+  //  .set_name("s2");
 
 
   w = new World(width, height);
-  w.coordinate_offset(width/2, height/2)
-    //.add_car(stationary)
-    .add_car(test)
-    .add_car(s1)
-    .add_car(s2);
+  w.coordinate_offset(width/2, height/2);
+  w.add_car(test);
+  for (Car c : all_cars){
+    w.add_car(c);
+  }
+  //w.coordinate_offset(width/2, height/2)
+  //  //.add_car(stationary)
+  //  .add_car(test)
+  //  .add_car(s1)
+  //  .add_car(s2);
   test.set_lidar();
 }
 
@@ -96,8 +116,8 @@ void draw() {
   w.timestep(seconds_per_frame);
   pushMatrix();
   translate(width/2, height/2);
-  test.display_car(pixels_per_meter);
-  //w.display_cars(pixels_per_meter);
+  //test.display_car(pixels_per_meter);
+  w.display_cars(pixels_per_meter);
   popMatrix();
 }
 

@@ -34,8 +34,8 @@ class Car {
   Car() {
   }
 
-  Car set_lidar(){
-    if (world == null){
+  Car set_lidar() {
+    if (world == null) {
       println("No world defined!");
       return this;
     }
@@ -97,6 +97,9 @@ class Car {
   }
 
   Car timestep(float dt) {
+    if (lidar != null) {
+      lidar.delayed_scan(1,dt,false,true);
+    }
     speed = (speed + acceleration*dt > 0) ? speed + acceleration * dt : 0;
     steering_step(dt);
 
@@ -124,8 +127,8 @@ class Car {
   void check_collision() {
     /*
     Check for collisions using the world's occupancy grid
-    */
-    
+     */
+
     // current_occupancy is an arraylist that holds the coordinates belonging to 
     // this car, it starts uninitialized
     if (current_occupancy != null) {
@@ -140,9 +143,9 @@ class Car {
     current_occupancy.clear();  
 
     /*rounding may cause the same coordinate pair to appear in
-    current_occupancy, which causes false positives. Use this boolean array to 
-    keep track of which pixels were already accounted for
-    */
+     current_occupancy, which causes false positives. Use this boolean array to 
+     keep track of which pixels were already accounted for
+     */
     boolean[][] prevent_repeats = new boolean[world.w][world.h]; 
 
     // loop over all the pixels inside the car
@@ -155,7 +158,7 @@ class Car {
         int x_index = int(position.x*pixels_per_meter+a.x)+int(world.x_offset);
         int y_index = int(position.y*pixels_per_meter+a.y)+int(world.y_offset);
         if (x_index < 0 || x_index >= world.w-1 || 
-            y_index < 0 || y_index >= world.h-1) {
+          y_index < 0 || y_index >= world.h-1) {
           continue;
         }
         PVector loc = new PVector(x_index, y_index);
@@ -166,7 +169,7 @@ class Car {
             collision = true;
           } 
           prevent_repeats[x_index][y_index] = true;
-        } 
+        }
       }
     }
   }
@@ -174,8 +177,8 @@ class Car {
   void steering_step(float dt) {
     /*
     Adjust the steering angle based on input, based on a number of seconds 
-    elapsed (dt)
-    */
+     elapsed (dt)
+     */
     float steer_dt = MAX_STEERING_DELTA*dt; 
 
     // increment steering if button pressed
@@ -187,10 +190,10 @@ class Car {
 
     // steering will increase/decrease until matches input steering command,
     if (steering_angle < steering_command && 
-        steering_angle + steer_dt < steering_command) {
+      steering_angle + steer_dt < steering_command) {
       steering_angle += steer_dt;
     } else if (steering_angle > steering_command && 
-               steering_angle - steer_dt > steering_command) {
+      steering_angle - steer_dt > steering_command) {
       steering_angle -= steer_dt;
     } else {
       steering_angle = steering_command;
@@ -211,23 +214,23 @@ class Car {
     //noFill();
     //stroke(0);
     rect(0, 0, LENGTH*pixels_per_meter, int(WIDTH*pixels_per_meter)%2==0 ?
-         int(WIDTH*pixels_per_meter) : int(WIDTH*pixels_per_meter) + 1);
+      int(WIDTH*pixels_per_meter) : int(WIDTH*pixels_per_meter) + 1);
 
     // rear wheels
     fill(0);
     rectMode(CENTER);
-    rect(rear_axle_offset*pixels_per_meter, int(WIDTH*pixels_per_meter)*0.5,
+    rect(rear_axle_offset*pixels_per_meter, int(WIDTH*pixels_per_meter)*0.5, 
       tire_diameter*pixels_per_meter, min(int(tire_width*pixels_per_meter), 2));
-    rect(rear_axle_offset*pixels_per_meter, int(-WIDTH*pixels_per_meter)*0.5,
+    rect(rear_axle_offset*pixels_per_meter, int(-WIDTH*pixels_per_meter)*0.5, 
       tire_diameter*pixels_per_meter, min(int(tire_width*pixels_per_meter), 2));
 
 
     // front wheels
     pushMatrix();
-    translate(front_axle_offset*pixels_per_meter,
+    translate(front_axle_offset*pixels_per_meter, 
       int(WIDTH*pixels_per_meter)*0.5);
     rotate(steering_angle);
-    rect(0, 0, tire_diameter*pixels_per_meter,
+    rect(0, 0, tire_diameter*pixels_per_meter, 
       min(tire_width*pixels_per_meter, 2));
     popMatrix();
 
@@ -235,15 +238,15 @@ class Car {
     translate(front_axle_offset*pixels_per_meter, 
       int(-WIDTH*pixels_per_meter)*0.5);
     rotate(steering_angle);
-    rect(0, 0, tire_diameter*pixels_per_meter,
+    rect(0, 0, tire_diameter*pixels_per_meter, 
       min(tire_width*pixels_per_meter, 2));
     popMatrix();
 
-    draw_origin(true);
-    draw_turn_radius(true);
+    //draw_origin(true);
+    //draw_turn_radius(true);
     draw_steering_angle(true);
     popMatrix();
-    if (lidar != null){
+    if (lidar != null) {
       lidar.show_boundary(true);
     }
   }
@@ -263,13 +266,13 @@ class Car {
     // ackermann steering 
     stroke(0);
     line(rear_axle_offset*pixels_per_meter, 0, 
-      rear_axle_offset*pixels_per_meter,
+      rear_axle_offset*pixels_per_meter, 
       ackermann_turn_radius(steering_angle)*pixels_per_meter);
   }
 
   void draw_steering_angle(boolean draw) {
     /*draw the car's steering angle, assume coordinate system centered on car 
-    centroid, aligned with car orientation*/
+     centroid, aligned with car orientation*/
     if (!draw) return;
     translate(front_axle_offset*pixels_per_meter, 0);
     rotate(steering_angle);
