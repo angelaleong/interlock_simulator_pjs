@@ -31,10 +31,11 @@ class World {
 
     for (Car car : cars) {
       if (car.collision) {
-        console.log("COLLISION");
+        console.log("some cars collided; halting");
         halt = true;
+      } else {
+        car.timestep(dt);
       }
-      car.timestep(dt);
     }
     return this;
   }

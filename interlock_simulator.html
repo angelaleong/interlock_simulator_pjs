@@ -1,2 +1,37 @@
-<script src="processing.min.js" type="text/javascript"></script>
-<canvas data-src="car_sim/car_sim.pde car_sim/Car.pde car_sim/World.pde car_sim/SingleLaneFollower.pde"></canvas>
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Interlock Simulator</title>
+  <meta name="description" content="A simulator for Interlock project">
+  <meta name="author" content="Interlock">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+	<script src="processing.min.js" type="text/javascript"></script>
+
+	<div class="container">
+		<div class="row justify-content-md-center">
+			<canvas data-src="car_sim/car_sim.pde car_sim/Car.pde car_sim/World.pde car_sim/SingleLaneFollower.pde"></canvas>
+		</div>
+		<br>
+		<div class="row">
+		    <div class="card border-info mb-3" style="width:80rem;">
+			  <div class="card-body">
+			    <h5 class="card-title">How To Use</h5>
+			    <p class="card-text">
+			    	<ul>
+			    		<li>Click the play button to start/stop motion</li>
+			    		<li>Click anywhere outside of the button to restart</li>
+			    		<li>Press 'a'/'d' to steer left/right</li>
+			    		<li>Press 'w'/'s' to accelerate/decelerate</li>
+			    		<li>Press '+'/'-' to zoom in/out</li>
+			    	</ul>
+			    </p>
+			  </div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
