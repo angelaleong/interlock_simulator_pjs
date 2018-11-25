@@ -1,5 +1,5 @@
 Car test;
-Car stationary;
+Car stationary, s1, s2, s3;
 World w;
 
 int buttonX, buttonY; // position of play button
@@ -9,8 +9,11 @@ color currentColor;
 boolean buttonOver = false;
 boolean paused = true;
 
-float seconds_per_frame = 1/60.0;
-float pixels_per_meter = 4.705;
+float seconds_per_frame = 1/90.0;
+float pixels_per_meter = 6.705;
+
+ArrayList<Car> all_cars = new ArrayList<Car>();
+Road road = new Road(5, new PVector(-90, 0), new PVector(90, 0), 5);
 
 void setup() {
   size(1280, 740, P2D);
@@ -19,6 +22,7 @@ void setup() {
   currentColor = pausedButtonColor;
   buttonX = width-100;
   buttonY = height-100;
+  pixelDensity(2);
 
   start();
 
@@ -27,23 +31,24 @@ void setup() {
 }
 
 void start() {
+  all_cars.clear();
   // separating start from setup so that we can
   // restart simulation upon collision
-  test = new Car();
-  test.set_init_position(new PVector(0, 32))
-    .set_init_orientation(-PI/4)
-    .set_name("test");
+  test = new RailroadCar(road, 5,0);
+  //test.set_init_position(new PVector(-90, 0))
+  //  .set_name("test")
+  //  .set_init_speed(5);
 
-  stationary = new Car();
-  stationary.set_init_position(new PVector(0, -8))
-    .set_init_speed(0)
-    .set_colour(color(0, 0, 255))
-    .set_name("stationary");
 
   w = new World(width, height);
-  w.coordinate_offset(width/2, height/2)
-    .add_car(stationary)
-    .add_car(test);
+  w.coordinate_offset(width/2, height/2);
+  w.add_car(test);
+  for (Car c : all_cars) {
+    w.add_car(c);
+  }
+
+  test.set_lidar();
+  test.controller_on();
 }
 
 void draw() {
@@ -62,7 +67,7 @@ void draw() {
   ellipse(buttonX, buttonY, buttonSize, buttonSize);
 
   fill(color(200));
-  
+
 
   // check if the simulation is paused
   if (!paused) {
@@ -76,9 +81,15 @@ void draw() {
   }
 
   // render world model
+  //fill(155);
+  //noStroke();
+  //rect(width/2, height/2, width, 60);
   w.timestep(seconds_per_frame);
   pushMatrix();
   translate(width/2, height/2);
+  road.draw_road();
+
+  stroke(0);
   w.display_cars(pixels_per_meter);
   popMatrix();
 }
@@ -100,7 +111,7 @@ void mousePressed() {
   }
 }
 
-void overButton(int x, int y, int d) {
+boolean overButton(int x, int y, int d) {
   float disX = x - mouseX;
   float disY = y - mouseY;
   if (sqrt(sq(disX) + sq(disY)) < d/2) {
@@ -128,6 +139,11 @@ void keyPressed() {
   }
   if (key == '-' || key == '_') {
     pixels_per_meter -= 1;
+  }
+  if (key == 'k') {
+    for (Car car : all_cars) {
+      car.accelerate(-8);
+    }
   }
 }
 
