@@ -6,6 +6,8 @@ class Car {
   int current_occupancy_valid = 0;
   PVector position = new PVector(0, 0);
   float acceleration = 0;
+  float accel_input =0;
+  float MAX_DECEL = 20;
 
   float orientation = 0;  // angle w.r.t world X axis
   float steering_angle = 0;  // positive for left, negative for right
@@ -28,6 +30,10 @@ class Car {
   float tire_width = 0.215;  // meters
   float tire_diameter = 0.66;  // meters
   boolean collision = false;
+
+  boolean controller_on = false;
+
+  PVector lead_car_last_pos = null;
 
   Lidar lidar = null;
 
@@ -55,6 +61,11 @@ class Car {
 
   Car set_init_orientation(float a) {
     orientation = a;
+    return this;
+  }
+
+  Car set_init_steering_angle(float a) {
+    steering_command = a;
     return this;
   }
 
@@ -92,13 +103,49 @@ class Car {
   }
 
   Car accelerate(float accel) {
-    acceleration = accel;
+    accel_input = accel;
     return this;
   }
 
+  Car controller_on() {
+    controller_on = true;
+    return this;
+  }
+
+  float controller(float dt, float cur_acc, ArrayList<Car_Info> cars) {
+    if (cars == null || cars.size() == 0) return cur_acc;
+    if (lead_car_last_pos == null) {
+      lead_car_last_pos = new PVector(cars.get(0).x, cars.get(0).y);
+      return cur_acc;
+    }
+    PVector lead_car_cur_pos = new PVector(cars.get(0).x, cars.get(0).y);
+    PVector d = PVector.sub(lead_car_cur_pos, lead_car_last_pos);
+    float lead_car_v = d.mag()/dt;
+    float safe_sep = max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - lead_car_v*lead_car_v/(2.0*8)+0.1, +0.5*LENGTH)+0.5;
+    boolean safe = PVector.sub(position, lead_car_cur_pos).mag()-0.5*cars.get(0).get_l()  >= safe_sep;
+
+    pushMatrix();
+    translate(position.x*pixels_per_meter+width/2, position.y*pixels_per_meter+height/2);
+    pushStyle();
+    noFill();
+    stroke(0);
+    ellipse(0, 0, 2*(safe_sep)*pixels_per_meter, 2*(safe_sep)*pixels_per_meter);
+    popStyle();
+    popMatrix();
+    lead_car_last_pos = lead_car_cur_pos.copy();
+    if (safe) return cur_acc;
+    return -MAX_DECEL;
+  }
+
   Car timestep(float dt) {
+    ArrayList<Car_Info> cars = new ArrayList<Car_Info>();
     if (lidar != null) {
-      lidar.delayed_scan(1,dt,false,true);
+      cars = lidar.scan(false);
+    }
+    if (controller_on) {
+      acceleration = controller(dt, accel_input, cars);
+    } else {
+      acceleration = accel_input;
     }
     speed = (speed + acceleration*dt > 0) ? speed + acceleration * dt : 0;
     steering_step(dt);
@@ -147,7 +194,7 @@ class Car {
      keep track of which pixels were already accounted for
      */
     boolean[][] prevent_repeats = new boolean[world.w][world.h]; 
-
+    boolean cur_collision = false;
     // loop over all the pixels inside the car
     for (float i = 0; i < int(LENGTH*pixels_per_meter); i++) {
       for (float j = 0; j < int(WIDTH*pixels_per_meter); j++) {
@@ -167,11 +214,13 @@ class Car {
           current_occupancy.add(loc);
           if (world.occupancy_grid[x_index][y_index] > 1) {
             collision = true;
+            cur_collision = true;
           } 
           prevent_repeats[x_index][y_index] = true;
         }
       }
     }
+    if (!cur_collision) collision = false;
   }
 
   void steering_step(float dt) {
@@ -209,12 +258,23 @@ class Car {
     rectMode(CENTER);
     noStroke();
     // body
-
+    pushStyle();
     fill(paint);
+
+    if (acceleration < 0 || speed == 0) {
+      strokeWeight(2);
+      stroke(0);
+    }
     //noFill();
     //stroke(0);
     rect(0, 0, LENGTH*pixels_per_meter, int(WIDTH*pixels_per_meter)%2==0 ?
       int(WIDTH*pixels_per_meter) : int(WIDTH*pixels_per_meter) + 1);
+    if (collision) {
+      stroke(0);
+      line(-0.5*LENGTH*pixels_per_meter, -0.5*WIDTH*pixels_per_meter, 0.5*LENGTH*pixels_per_meter, 0.5*WIDTH*pixels_per_meter);
+      line(-0.5*LENGTH*pixels_per_meter, 0.5*WIDTH*pixels_per_meter, 0.5*LENGTH*pixels_per_meter, -0.5*WIDTH*pixels_per_meter);
+    }
+    popStyle();
 
     // rear wheels
     fill(0);
@@ -247,7 +307,7 @@ class Car {
     draw_steering_angle(true);
     popMatrix();
     if (lidar != null) {
-      lidar.show_boundary(true);
+      //lidar.show_boundary(true);
     }
   }
   void draw_origin(boolean draw) {

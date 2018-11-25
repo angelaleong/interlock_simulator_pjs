@@ -23,7 +23,7 @@ class Lidar {
       buffer.remove(0);
       if (show_delayed) {
         pushMatrix();
-        translate(car.position.x*pixels_per_meter+world.x_offset, car.position.y*pixels_per_meter+world.y_offset);
+        translate(world.x_offset, world.y_offset);
         for (Car_Info c : buffer.get(0)) {
           pushMatrix();
           translate(c.get_x()*pixels_per_meter, c.get_y()*pixels_per_meter);
@@ -85,8 +85,8 @@ class Lidar {
             pushMatrix();
             translate(world.x_offset, world.y_offset);
             stroke(255, 0, 0);
-            line(loc.x-world.x_offset, loc.y-world.y_offset, car.position.x*pixels_per_meter, car.position.y*pixels_per_meter);
-            visible_cars.add(new Car_Info(c.position.x-car.position.x, c.position.y-car.position.y, c.orientation, c.WIDTH, c.LENGTH));
+            //line(c.position.x*pixels_per_meter, c.position.y*pixels_per_meter, car.position.x*pixels_per_meter, car.position.y*pixels_per_meter);
+            visible_cars.add(new Car_Info(c.position.x, c.position.y, c.orientation, c.WIDTH, c.LENGTH));
             popMatrix();
             break;
           }
