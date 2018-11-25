@@ -86,6 +86,7 @@ class Car {
   }
 
   Car timestep(float dt) {
+    speed = (speed + acceleration*dt > 0) ? speed + acceleration * dt : 0;
     steering_step(dt);
 
     float r = ackermann_turn_radius(steering_angle);  // meters

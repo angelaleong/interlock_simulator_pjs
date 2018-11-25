@@ -1,3 +1,5 @@
+Road road1;
+Road road2;
 Car test;
 Car stationary;
 Car single_lane_follower;
@@ -11,7 +13,7 @@ boolean buttonOver = false;
 boolean paused = true;
 
 float seconds_per_frame = 1/60.0;
-float pixels_per_meter = 4.705;
+float pixels_per_meter = 7; // 4.705
 
 void setup() {
   size(1280, 740, P2D);
@@ -30,29 +32,33 @@ void setup() {
 void start() {
   // separating start from setup so that we can
   // restart simulation upon collision
-  test = new Car();
-  test.set_init_position(new PVector(0, 32))
-    .set_init_orientation(-PI/4)
+  road1 = new Road(-70, 0, 100, 0, 8);
+  road2 = new Road(0, 70, 0, -100, 8);
+
+  test = new RailroadCar(road1, 0);
+  test.set_colour(color(0, 255, 0))
     .set_name("test");
 
-  stationary = new Car();
-  stationary.set_init_position(new PVector(0, -8))
+  stationary = new RailroadCar(road1, 70);
+  stationary
     .set_init_speed(0)
-    .set_colour(color(0, 0, 255))
+    .set_colour(color(255, 0, 0))
     .set_name("stationary");
 
-  single_lane_follower = new SingleLaneFollower();
-  single_lane_follower.set_init_position(new PVector(-100, -8))
-    .set_name("single_lane_follower")
-    .set_colour(color(0, 255, 0));
+  //single_lane_follower = new SingleLaneFollower();
+  //single_lane_follower.set_init_position(new PVector(-100, -8))
+  //  .set_name("single_lane_follower")
+  //  .set_colour(color(0, 255, 0));
 
   w = new World(width, height);
   w.coordinate_offset(width/2, height/2)
+    .add_road(road1)
+  //  .add_road(road2)
     .add_car(stationary)
-    .add_car(test)
-    .add_car(single_lane_follower);
+    .add_car(test);
+  //  .add_car(single_lane_follower);
 
-  single_lane_follower.set_front_car_pos(0);
+  //single_lane_follower.set_front_car_pos(0);
 
   // turn off aliasing
   // noSmooth();
@@ -91,6 +97,7 @@ void draw() {
   w.timestep(seconds_per_frame);
   pushMatrix();
   translate(width/2, height/2);
+  w.display_roads(pixels_per_meter);
   w.display_cars(pixels_per_meter);
   popMatrix();
 }
