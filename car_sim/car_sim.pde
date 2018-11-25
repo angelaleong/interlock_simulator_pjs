@@ -34,55 +34,10 @@ void start() {
   all_cars.clear();
   // separating start from setup so that we can
   // restart simulation upon collision
-  test = new Car();
-  test.set_init_position(new PVector(-90, 0))
-    .set_name("test")
-    .set_init_speed(5);
-
-  //  Car s1 = new Car();
-  //  s1.set_init_speed(5)
-  //    .set_colour(color(0, 0, 255))
-  //    .set_init_position(new PVector(0, 0))
-  //    .set_init_steering_angle(-PI/6);
-
-  //  Car s2 = new Car();
-  //  s2.set_init_speed(5)
-  //    .set_colour(color(0, 0, 255))
-  //    .set_init_position(new PVector(-30, 0))
-  //    .set_init_steering_angle(-PI/12);
-
-  //  all_cars.add(s1);
-  //  all_cars.add(s2);
-
-  //for (int i = 0; i < 1; i++) {
-  //  for (int j = 0; j < 1; j++) {
-  //    Car s = new Car();
-  //    s.set_colour(color(100))
-  //      .set_init_position(new PVector(-60, 0));
-  //    //.set_init_orientation(random(2*PI));
-  //    all_cars.add(s);
-  //  }
-  //}
-  //println(all_cars.size());
-
-  //stationary = new Car();
-  //stationary.set_init_position(new PVector(0, -8))
-  //  .set_init_speed(0)
-  //  .set_colour(color(0, 0, 255))
-  //  .set_name("stationary");
-
-
-  //s1 = new Car();
-  //s1.set_init_position(new PVector(0, 8))
-  //  .set_init_speed(0)
-  //  .set_colour(color(0, 0, 255))
-  //  .set_name("s1");
-
-  //s2 = new Car();
-  //s2.set_init_position(new PVector(0, -16))
-  //  .set_init_speed(0)
-  //  .set_colour(color(0, 0, 255))
-  //  .set_name("s2");
+  test = new RailroadCar(road, 5,0);
+  //test.set_init_position(new PVector(-90, 0))
+  //  .set_name("test")
+  //  .set_init_speed(5);
 
 
   w = new World(width, height);
@@ -91,11 +46,7 @@ void start() {
   for (Car c : all_cars) {
     w.add_car(c);
   }
-  //w.coordinate_offset(width/2, height/2)
-  //  //.add_car(stationary)
-  //  .add_car(test)
-  //  .add_car(s1)
-  //  .add_car(s2);
+
   test.set_lidar();
   test.controller_on();
 }
