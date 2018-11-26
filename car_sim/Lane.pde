@@ -14,12 +14,13 @@ class Lane{
     path = new Path(a, orientation);
   }
   
-  void draw_lane(){
+  void draw_lane(boolean selected){
     
     pushStyle();
     rectMode(CENTER);
     noStroke();
     fill(70);
+    if (selected) fill(155);
     pushMatrix();
     translate(pixels_per_meter*0.5*(a.x+b.x), pixels_per_meter*0.5*(a.y+b.y));
     rotate(orientation);

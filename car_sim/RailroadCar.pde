@@ -16,6 +16,7 @@ class RailroadCar extends Car {
   }
 
   RailroadCar path_follow(float p, float d, float i) {
+
     float error = cur_lane.path.dist_to_path(position);
     steering_command = p*error - d*(last_error-error);
     last_error = error;
@@ -23,7 +24,7 @@ class RailroadCar extends Car {
   }
 
   RailroadCar timestep(float dt) {
-    path_follow(0.01,3,0);
+    path_follow(0.01, 3, 0);
     ArrayList<Car_Info> cars = new ArrayList<Car_Info>();
     if (lidar != null) {
       cars = lidar.scan(false);
@@ -55,5 +56,10 @@ class RailroadCar extends Car {
     check_collision();
 
     return this;
+  }
+
+  void display_car(float pixels_per_meter) {
+    cur_lane.draw_lane(true);
+    super.display_car(pixels_per_meter);
   }
 }

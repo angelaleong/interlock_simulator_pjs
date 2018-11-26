@@ -12,9 +12,8 @@ class Road{
     }
   }
   void draw_road(){
-    for (Lane lane : lanes){
-      
-      lane.draw_lane();
+    for (Lane lane : lanes) {
+      lane.draw_lane(false);
     }
   }
 }

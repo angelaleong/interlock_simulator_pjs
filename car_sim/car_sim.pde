@@ -2,6 +2,8 @@ RailroadCar test;
 Car stationary, s1, s2, s3;
 World w;
 
+int lane = 0;
+
 int buttonX, buttonY; // position of play button
 int buttonSize = 50;
 color buttonColor, pausedButtonColor;
@@ -13,7 +15,7 @@ float seconds_per_frame = 1/90.0;
 float pixels_per_meter = 6.705;
 
 ArrayList<Car> all_cars = new ArrayList<Car>();
-Road road = new Road(5, new PVector(-90, 0), new PVector(90, 0), 5);
+Road road = new Road(5, new PVector(-90, -30), new PVector(90, 30), 5);
 
 void setup() {
   size(1280, 740, P2D);
@@ -35,7 +37,7 @@ void start() {
   // separating start from setup so that we can
   // restart simulation upon collision
   test = new RailroadCar(road, 3,0);
-  test.cur_lane = road.lanes.get(2);
+  //test.cur_lane = road.lanes.get(2);
   //test.set_init_position(new PVector(-90, 0))
   //  .set_name("test")
   //  .set_init_speed(5);
@@ -145,6 +147,9 @@ void keyPressed() {
     for (Car car : all_cars) {
       car.accelerate(-8);
     }
+  }
+  if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5'){
+    test.cur_lane = road.lanes.get(key-49);
   }
 }
 
