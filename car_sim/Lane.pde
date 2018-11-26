@@ -3,6 +3,7 @@ class Lane{
   float w;
   float orientation;
   float l;
+  Path path;
   
   Lane(PVector start, PVector end, float w_){
     a = start;
@@ -10,6 +11,7 @@ class Lane{
     w = w_;
     orientation = PVector.sub(b, a).heading();
     l = PVector.sub(b, a).mag();
+    path = new Path(a, orientation);
   }
   
   void draw_lane(){

@@ -1,4 +1,4 @@
-Car test;
+RailroadCar test;
 Car stationary, s1, s2, s3;
 World w;
 
@@ -34,7 +34,8 @@ void start() {
   all_cars.clear();
   // separating start from setup so that we can
   // restart simulation upon collision
-  test = new RailroadCar(road, 5,0);
+  test = new RailroadCar(road, 3,0);
+  test.cur_lane = road.lanes.get(2);
   //test.set_init_position(new PVector(-90, 0))
   //  .set_name("test")
   //  .set_init_speed(5);
