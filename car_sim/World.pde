@@ -31,17 +31,17 @@ class World {
   }
 
   World timestep(float dt) {
-    if (halt) {
-      return this;
-    }
+    //if (halt) {
+    //  return this;
+    //}
 
     for (Car car : cars) {
       if (car.collision) {
-        console.log("some cars collided; halting");
+        //console.log("some cars collided; halting");
         halt = true;
-      } else {
-        car.timestep(dt);
       }
+
+      car.timestep(dt);
     }
     return this;
   }

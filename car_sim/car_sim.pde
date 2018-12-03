@@ -1,8 +1,7 @@
 Road road1;
 Road road2;
 Car test;
-Car stationary;
-Car single_lane_follower;
+Car stationary, s1, s2, s3;
 World w;
 
 int buttonX, buttonY; // position of play button
@@ -12,8 +11,11 @@ color currentColor;
 boolean buttonOver = false;
 boolean paused = true;
 
-float seconds_per_frame = 1/60.0;
-float pixels_per_meter = 7; // 4.705
+float seconds_per_frame = 1/90.0;
+float pixels_per_meter = 6.705;
+
+ArrayList<Car> all_cars = new ArrayList<Car>();
+Road road = new Road(5, new PVector(-90, 0), new PVector(90, 0), 5);
 
 void setup() {
   size(1280, 740, P2D);
@@ -22,6 +24,7 @@ void setup() {
   currentColor = pausedButtonColor;
   buttonX = width-100;
   buttonY = height-100;
+  pixelDensity(2);
 
   start();
 
@@ -30,20 +33,14 @@ void setup() {
 }
 
 void start() {
+  all_cars.clear();
   // separating start from setup so that we can
   // restart simulation upon collision
-  road1 = new Road(-70, 0, 100, 0, 8);
-  road2 = new Road(0, 70, 0, -100, 8);
+  test = new RailroadCar(road, 5,0);
+  //test.set_init_position(new PVector(-90, 0))
+  //  .set_name("test")
+  //  .set_init_speed(5);
 
-  test = new RailroadCar(road1, 0);
-  test.set_colour(color(0, 255, 0))
-    .set_name("test");
-
-  stationary = new RailroadCar(road1, 70);
-  stationary
-    .set_init_speed(0)
-    .set_colour(color(255, 0, 0))
-    .set_name("stationary");
 
   //single_lane_follower = new SingleLaneFollower();
   //single_lane_follower.set_init_position(new PVector(-100, -8))
@@ -51,17 +48,14 @@ void start() {
   //  .set_colour(color(0, 255, 0));
 
   w = new World(width, height);
-  w.coordinate_offset(width/2, height/2)
-    .add_road(road1)
-  //  .add_road(road2)
-    .add_car(stationary)
-    .add_car(test);
-  //  .add_car(single_lane_follower);
+  w.coordinate_offset(width/2, height/2);
+  w.add_car(test);
+  for (Car c : all_cars) {
+    w.add_car(c);
+  }
 
-  //single_lane_follower.set_front_car_pos(0);
-
-  // turn off aliasing
-  // noSmooth();
+  test.set_lidar();
+  test.controller_on();
 }
 
 void draw() {
@@ -94,10 +88,15 @@ void draw() {
   }
 
   // render world model
+  //fill(155);
+  //noStroke();
+  //rect(width/2, height/2, width, 60);
   w.timestep(seconds_per_frame);
   pushMatrix();
   translate(width/2, height/2);
-  w.display_roads(pixels_per_meter);
+  road.draw_road();
+
+  stroke(0);
   w.display_cars(pixels_per_meter);
   popMatrix();
 }
@@ -119,7 +118,7 @@ void mousePressed() {
   }
 }
 
-void overButton(int x, int y, int d) {
+boolean overButton(int x, int y, int d) {
   float disX = x - mouseX;
   float disY = y - mouseY;
   if (sqrt(sq(disX) + sq(disY)) < d/2) {
@@ -148,11 +147,10 @@ void keyPressed() {
   if (key == '-' || key == '_') {
     pixels_per_meter -= 1;
   }
-  if (key == 'l') {
-    single_lane_follower.accelerate(8);
-  }
   if (key == 'k') {
-    single_lane_follower.accelerate(-8);
+    for (Car car : all_cars) {
+      car.accelerate(-8);
+    }
   }
 }
 

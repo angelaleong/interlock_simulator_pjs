@@ -1,9 +1,13 @@
 class RailroadCar extends Car {
-
-  RailroadCar(Road road, float offset) {
+  Lane cur_lane;
+  RailroadCar(Road road, int which_lane, float offset) {
     super();
-    orientation = road.orientation;
-    position = new PVector(road.x_start, road.y_start);
+    if (which_lane >= road.lanes.size()){
+      println("Selected lane (" + str(which_lane) + ") is not in road (max " + str(road.lanes.size()-1) + ")");
+    }
+    cur_lane = road.lanes.get(which_lane);
+    orientation = cur_lane.orientation;
+    position = new PVector(cur_lane.a.x, cur_lane.a.y);
     PVector d = new PVector(offset, 0);
     d.rotate(orientation);
     position.add(d);
