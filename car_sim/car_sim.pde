@@ -1,5 +1,3 @@
-Road road1;
-Road road2;
 Car test;
 Car stationary, s1, s2, s3;
 World w;
@@ -41,11 +39,6 @@ void start() {
   //  .set_name("test")
   //  .set_init_speed(5);
 
-
-  //single_lane_follower = new SingleLaneFollower();
-  //single_lane_follower.set_init_position(new PVector(-100, -8))
-  //  .set_name("single_lane_follower")
-  //  .set_colour(color(0, 255, 0));
 
   w = new World(width, height);
   w.coordinate_offset(width/2, height/2);
@@ -162,12 +155,6 @@ void keyReleased() {
     test.accelerate(0);
   }
   if (key == 's') {
-    test.accelerate(0);
-  }
-  if (key == 'l') {
-    test.accelerate(0);
-  }
-  if (key == 'k') {
     test.accelerate(0);
   }
 }
