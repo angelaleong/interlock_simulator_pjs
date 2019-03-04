@@ -3,21 +3,25 @@ class Lane{
   float w;
   float orientation;
   float l;
+  Path path;
+  int index;
   
-  Lane(PVector start, PVector end, float w_){
+  Lane(PVector start, PVector end, float w_, int index_){
     a = start;
     b = end;
     w = w_;
     orientation = PVector.sub(b, a).heading();
     l = PVector.sub(b, a).mag();
+    path = new Path(a, orientation);
+    index = index_;
   }
   
-  void draw_lane(){
-    
+  void draw_lane(boolean selected){
     pushStyle();
     rectMode(CENTER);
     noStroke();
     fill(70);
+    if (selected) fill(155);
     pushMatrix();
     translate(pixels_per_meter*0.5*(a.x+b.x), pixels_per_meter*0.5*(a.y+b.y));
     rotate(orientation);
