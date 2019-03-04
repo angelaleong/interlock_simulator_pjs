@@ -48,7 +48,7 @@ class Car {
   HashMap<Car, PVector> last_pos = new HashMap<Car, PVector>();
   float other_car_safe_sep = 0;
   float other_car_sensor_envelope = 0;
-  float lane_change_envelope = 0;
+  float lane_change_envelope = 15;
   
   // ATTEMPT 1: ARBITRARY ELLIPSES
   // ellipse representing "shadow" around car
@@ -289,12 +289,6 @@ class Car {
               envelope_occupancy.add(loc);
             }
           }
-          //world.envelope_grid[x_index][y_index] += 1;
-          //envelope_occupancy.add(loc);
-          //if (is_ego && world.envelope_grid[x_index][y_index] >1) {
-          //  overlap = true;
-          //  cur_overlap = true;
-          //}
           if (is_ego) {
             if (world.envelope_grid[x_index][y_index] == 1) {
               overlap = true;
@@ -337,11 +331,6 @@ class Car {
     boolean[][] prevent_repeats = new boolean[world.w][world.h];
     boolean cur_collision = false;
     // loop over all the pixels inside the car
-      //  for (float i = 0; i < int((LENGTH + other_car_safe_sep + other_car_sensor_envelope)*pixels_per_meter); i++) {
-      //for (float j = 0; j < int(WIDTH*pixels_per_meter); j++) {
-      //  float x = i - (LENGTH/2 + other_car_safe_sep + other_car_sensor_envelope)*pixels_per_meter/2;
-      //  float y = j - WIDTH*pixels_per_meter/2;
-    
     for (float i = 0; i < int(LENGTH*pixels_per_meter); i++) {
       for (float j = 0; j < int(WIDTH*pixels_per_meter); j++) {
         float x = i - LENGTH*pixels_per_meter/2;
@@ -451,7 +440,6 @@ class Car {
         fill(c3);
         rect((-other_car_safe_sep-other_car_sensor_envelope-lane_change_envelope/2)*pixels_per_meter, 0, 
           lane_change_envelope*pixels_per_meter, WIDTH*pixels_per_meter);
-
       } else {
         //fill(c2);
         //rect((LENGTH/2 + sensor_envelope/2)*pixels_per_meter, 0, sensor_envelope*pixels_per_meter, WIDTH*pixels_per_meter);

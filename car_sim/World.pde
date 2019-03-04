@@ -73,26 +73,4 @@ class World {
     }
     return this;
   }
-  
-  //World display_contours(ArrayList<Car> other_cars, Road road, float sd_x, float sd_y, float alpha, float h_c) {
-  //  System.out.println(occupancy_grid.length);
-  //  System.out.println(occupancy_grid[0].length);
-  //  color col = color(255,255,0);
-  //  for (int i = 0; i < w; i++) {
-  //    for (int j = 0; j < h; j++) {
-  //      // if (i, j) falls in road
-  //      float h_pixel = 0;
-  //      for (Car c : other_cars) {
-  //        PVector d_i = PVector.sub(new PVector(i, j), c.position);
-  //        // TODO: verify that I'm getting the x- and y-components of velocity correctly
-  //        h_pixel += Math.exp(-Math.pow(d_i.x, 2)/Math.pow(sd_x, 2) - Math.pow(d_i.y, 2)/Math.pow(sd_y, 2))/
-  //          (1 + Math.exp(-alpha*(d_i.x * c.speed*cos(c.orientation) + d_i.y * c.speed*sin(c.orientation))));
-  //      }
-  //      if (h_pixel >= h_c && occupancy_grid[i][j] == 0) {
-  //        set(i, j, col);
-  //      }
-  //    }
-  //  }
-  //  return this;
-  //}
 }

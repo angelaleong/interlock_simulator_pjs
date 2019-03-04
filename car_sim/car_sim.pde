@@ -15,13 +15,6 @@ float pixels_per_meter = 6.705;
 
 ArrayList<Car> all_cars = new ArrayList<Car>();
 ArrayList<Road> all_roads = new ArrayList<Road>();
-//Road road = new Road(5, new PVector(-90, 0), new PVector(90, 0), 5);
-//Road road2 = new Road(3, new PVector(0, -90), new PVector(0, 90), 9);
-
-//float sd_x;
-//float sd_y;
-//float alpha = 0.1; // TODO: test different values of alpha
-//float h_c;
 
 void setup() {
   size(1280, 740, P2D);
@@ -42,18 +35,6 @@ void start() {
   all_cars.clear();
   // separating start from setup so that we can
   // restart simulation upon collision
-  //test = new RailroadCar(road, 0, 0, false);
-  //test.set_colour(color(0, 255, 0));
-  //test.cur_lane = road.lanes.get(2);
-  //test.set_init_position(new PVector(-90, 0))
-  //  .set_name("test")
-  //  .set_init_speed(5);
-  //s1 = new RailroadCar(road, 2, 50, true).set_init_speed(10);
-  //s2 = new RailroadCar(road, 0, 40, false).set_init_speed(5);
-  //s3 = new RailroadCar(road, 4, 30, true).set_init_speed(20);
-  //all_cars.add(s1);
-  //all_cars.add(s2);
-  //all_cars.add(s3);
   if (args != null) {
     String r_name = "";
     int num_lanes = 5;
@@ -69,7 +50,6 @@ void start() {
     float speed = 0;
     float accel = 0;
     
-    //Road road = new Road(5, new PVector(-90, 0), new PVector(90, 0), 5);
     Road road = new Road(num_lanes, new PVector(start_x, start_y), new PVector(end_x, end_y), lane_w);
     int new_road_start_index = 0;
     int cars_start_index = 0;
@@ -154,49 +134,7 @@ void start() {
 
   test.set_lidar();
   test.controller_on();
-  
-  //// calculate standard deviation of x and y positions
-  //// TODO: verify that this sd calculation should not include ego car
-  //ArrayList<Float> all_x_pos = new ArrayList<Float>();
-  //ArrayList<Float> all_y_pos = new ArrayList<Float>();
-  //for (Car c : all_cars) {
-  //  all_x_pos.add(c.position.x);
-  //  all_y_pos.add(c.position.y);
-  //}
-  //sd_x = calculateSD(all_x_pos);
-  //sd_y = calculateSD(all_y_pos);
-  
-  //// calculate overall cost H (eq. 7 in Rus paper)
-  //float h = 0;
-  //for (Car c : all_cars) {
-  //  PVector d_i = PVector.sub(test.position, c.position);
-  //  // TODO: verify that I'm getting the x- and y-components of velocity correctly
-  //  h += Math.exp(-Math.pow(d_i.x, 2)/Math.pow(sd_x, 2) - Math.pow(d_i.y, 2)/Math.pow(sd_y, 2))/
-  //    (1 + Math.exp(-alpha*(d_i.x * c.speed*cos(c.orientation) + d_i.y * c.speed*sin(c.orientation))));
-  //}
-  //h_c = h;
-  
-  //// get planning threshold H_p
-  //float h_p = 0.5*h;
 }
-
-//float calculateSD(ArrayList<Float> numArray)
-//{
-//    float sum = 0.0, standardDeviation = 0.0;
-//    int length = numArray.size();
-
-//    for(float num : numArray) {
-//        sum += num;
-//    }
-
-//    float mean = sum/length;
-
-//    for(float num: numArray) {
-//        standardDeviation += Math.pow(num - mean, 2);
-//    }
-
-//    return (float) Math.sqrt(standardDeviation/length);
-//}
 
 void draw() {
   update(mouseX, mouseY);
@@ -222,21 +160,15 @@ void draw() {
   }
 
   // render world model
-  //fill(155);
-  //noStroke();
-  //rect(width/2, height/2, width, 60);
   w.timestep(seconds_per_frame);
   pushMatrix();
   translate(width/2, height/2);
   for (Road r : all_roads) {
     r.draw_road();
   }
-  //road.draw_road();
-  //road2.draw_road();
 
   stroke(0);
   w.display_cars(pixels_per_meter);
-  //w.display_contours(all_cars, road, sd_x, sd_y, alpha, h_c); // an attempt at drawing contours per the Rus paper
   popMatrix();
 }
 

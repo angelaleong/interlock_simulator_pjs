@@ -2,12 +2,10 @@ class RailroadCar extends Car {
   Road road;
   Lane cur_lane;
   float last_error = 0;
-  //boolean is_ego = false;
   boolean lane_changing = false;
 
   RailroadCar(Road _road, int which_lane, float offset, boolean shadow_on, boolean _is_ego) {
     super(shadow_on, _is_ego);
-    //is_ego = _is_ego;
     road = _road;
     if (which_lane >= _road.lanes.size()) {
       println("Selected lane (" + str(which_lane) + ") is not in road (max " + str(road.lanes.size()-1) + ")");
@@ -27,6 +25,7 @@ class RailroadCar extends Car {
     return this;
   }
   
+  // LANE CHANGING LOGIC:
   // if (ego car must decelerate if it stays in the same lane):
   //    if (there are neighboring lanes):
   //        if (lane change is valid):
@@ -37,7 +36,7 @@ class RailroadCar extends Car {
   //        decelerate
   
   float envelope_controller(float cur_acc) {    
-    // ATOMIC LANE CHANGE
+    // INSTANTANEOUS LANE CHANGE
     //if (!overlap) return cur_acc;
     
     //if (cur_lane.index - 1 >= 0) {
@@ -61,23 +60,21 @@ class RailroadCar extends Car {
         return cur_acc;
       } 
       else {
-        //if (!lane_changing) {
-          if (cur_lane.index - 1 >= 0) {
-            Lane new_lane = road.lanes.get(cur_lane.index - 1);
-            if (valid_smooth_lane_change(new_lane)) {
-              if (!lane_changing) smooth_lane_change(new_lane);
-              lane_changing = true;
-              return cur_acc;
-            }
-          } else if (cur_lane.index + 1 < road.lanes.size()) {
-            Lane new_lane = road.lanes.get(cur_lane.index + 1);
-            if (valid_smooth_lane_change(new_lane)) {
-              if (!lane_changing) smooth_lane_change(new_lane);
-              lane_changing = true;
-              return cur_acc;
-            }
+        if (cur_lane.index - 1 >= 0) {
+          Lane new_lane = road.lanes.get(cur_lane.index - 1);
+          if (valid_smooth_lane_change(new_lane)) {
+            if (!lane_changing) smooth_lane_change(new_lane);
+            lane_changing = true;
+            return cur_acc;
           }
-        //}
+        } else if (cur_lane.index + 1 < road.lanes.size()) {
+          Lane new_lane = road.lanes.get(cur_lane.index + 1);
+          if (valid_smooth_lane_change(new_lane)) {
+            if (!lane_changing) smooth_lane_change(new_lane);
+            lane_changing = true;
+            return cur_acc;
+          }
+        }
       }
     }
     
