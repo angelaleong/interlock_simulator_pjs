@@ -4,8 +4,8 @@ class RailroadCar extends Car {
   float last_error = 0;
   boolean lane_changing = false;
 
-  RailroadCar(Road _road, int which_lane, float offset, boolean shadow_on, boolean _is_ego) {
-    super(shadow_on, _is_ego);
+  RailroadCar(Road _road, int which_lane, float offset, int type) {
+    super(type);
     road = _road;
     if (which_lane >= _road.lanes.size()) {
       println("Selected lane (" + str(which_lane) + ") is not in road (max " + str(road.lanes.size()-1) + ")");
@@ -42,12 +42,12 @@ class RailroadCar extends Car {
     //if (cur_lane.index - 1 >= 0) {
     //  Lane new_lane = road.lanes.get(cur_lane.index - 1);
     //  if (valid_lane_change(new_lane)) {
-    //    atomic_lane_change(new_lane);
+    //    instant_lane_change(new_lane);
     //  }
     //} else if (cur_lane.index + 1 < road.lanes.size()) {
     //  Lane new_lane = road.lanes.get(cur_lane.index + 1);
     //  if (valid_lane_change(new_lane)) {
-    //    atomic_lane_change(new_lane);
+    //    instant_lane_change(new_lane);
     //  }
     //}
     
@@ -119,7 +119,7 @@ class RailroadCar extends Car {
     return true;
   }
 
-  RailroadCar atomic_lane_change(Lane new_lane) {
+  RailroadCar instant_lane_change(Lane new_lane) {
     PVector offset = PVector.sub(position, cur_lane.a);
     position = PVector.add(new_lane.a, offset);
     cur_lane = new_lane;
@@ -132,20 +132,22 @@ class RailroadCar extends Car {
   }
   
   RailroadCar timestep(float dt) {
-    path_follow(0.01, 3, 0);
-    ArrayList<Car_Info> cars = new ArrayList<Car_Info>();
+    path_follow(0.05, 3, 0);
+    ArrayList<Car_Info> car_info = new ArrayList<Car_Info>();
     if (lidar != null) {
-      cars = lidar.scan(false);
+      car_info = lidar.scan(false);
     }
-    if (is_ego) {
-      update_envelopes(dt, w.query());
+    if (type == 0) {
+      update_envelopes(dt, w.query_cars());
     } else {
       other_car_safe_sep = w.get_safe_sep(this);
       other_car_sensor_envelope = w.get_sensor_envelope(this);
+      prob_envelopes = w.get_prob_envelopes(this);
     }
     if (controller_on) {
-      //acceleration = controller(dt, accel_input, cars);
-      acceleration = envelope_controller(accel_input);
+      //acceleration = controller(dt, accel_input, car_info);
+      //acceleration = envelope_controller(accel_input);
+      acceleration = p_controller(dt, accel_input, w.query_cars(), w.query_prob_envelopes());
     } else {
       acceleration = accel_input;
     }
@@ -174,8 +176,8 @@ class RailroadCar extends Car {
     return this;
   }
 
-  void display_car(float pixels_per_meter) {
-    if (is_ego) cur_lane.draw_lane(true);
-    super.display_car(pixels_per_meter);
+  void display_car(float pixels_per_meter, int car_index) {
+    if (type == 0) cur_lane.draw_lane(true);
+    super.display_car(pixels_per_meter, car_index);
   }
 }

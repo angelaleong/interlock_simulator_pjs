@@ -7,9 +7,12 @@ class Car {
   PVector position = new PVector(0, 0);
   float acceleration = 0;
   float accel_input = 0;
-  float MAX_DECEL = 30;
+  float MAX_DECEL = 10;
   float MAX_ACCEL = 9;
   float T_s = 0.1; // sensor delay
+  float T_a = 0.1; // actuator delay
+  float T_i = 0.1; // interlock cycle
+  float e = T_s + T_a + T_i;
 
   float orientation = 0;  // angle w.r.t world X axis
   float steering_angle = 0;  // positive for left, negative for right
@@ -34,38 +37,35 @@ class Car {
   boolean collision = false;
 
   boolean controller_on = false;
-
-  PVector lead_car_last_pos = null;
-
   Lidar lidar = null;
   boolean show_lidar = false;
   
+  // for old controller
+  PVector lead_car_last_pos = null;
+  
+  // for envelopes and overlap check
   float safe_sep;
   float lead_car_d;
   float sensor_envelope;
   
-  boolean is_ego;
+  int type; // 0 = ego, negative values are cars behind ego, positive values are cars in front of ego
   HashMap<Car, PVector> last_pos = new HashMap<Car, PVector>();
   float other_car_safe_sep = 0;
   float other_car_sensor_envelope = 0;
-  float lane_change_envelope = 15;
-  
-  // ATTEMPT 1: ARBITRARY ELLIPSES
-  // ellipse representing "shadow" around car
-  boolean shadow_on;
-  float a = 0.5;
-  float b = 1;
-  float skew = 0.3;
-  float risk_level = 0.9; // planning threshold H_p per the Rus paper
+  float lane_change_envelope = 0;
   
   ArrayList<PVector> lane_change_envelope_occupancy = null;
   ArrayList<PVector> envelope_occupancy = null;
   boolean overlap = false;
   boolean weak_overlap = false;
+  
+  // for probability-of-collision envelopes
+  HashMap<Float, Float> prob_table = new HashMap<Float, Float>();
+  HashMap<Float, Float> prob_envelopes = new HashMap<Float, Float>();
+  float p_threshold = 0.65;
 
-  Car(boolean _shadow_on, boolean _is_ego) {
-    shadow_on = _shadow_on;
-    is_ego = _is_ego;
+  Car(int _type) {
+    type = _type;
   }
 
   Car set_lidar() {
@@ -87,7 +87,7 @@ class Car {
     return this;
   }
 
-  Car set_colour(color c) {
+  Car set_color(color c) {
     paint = c;
     return this;
   }
@@ -150,6 +150,28 @@ class Car {
     return this;
   }
   
+  Car set_type(int _type) {
+    type = _type;
+    return this;
+  }
+  
+  Car set_prob_table(HashMap<Float, Float> pt) {
+    prob_table = pt;
+    return this;
+  }
+  
+  float p_controller(float dt, float cur_acc, ArrayList<Car> cars, HashMap<Car, HashMap<Float, Float>> p_envelopes) {
+    if (cars == null || cars.size() == 0) return cur_acc;
+
+    for (int i = 1; i < cars.size(); i++) {
+      Car c = cars.get(i);
+      float safe_sep = p_envelopes.get(c).get(p_threshold);
+      if (PVector.sub(position, c.position).mag()-0.5*c.LENGTH < safe_sep) return -MAX_DECEL;
+    }
+    
+    return cur_acc;
+  }
+  
   void update_envelopes(float dt, ArrayList<Car> cars) {
     if (cars == null || cars.size() == 0) return;
     for (int i = 1; i < cars.size(); i++) {
@@ -166,6 +188,37 @@ class Car {
       float c_sensor_envelope = speed*T_s + MAX_ACCEL*T_s*T_s/2 - c_v*T_s + MAX_DECEL*T_s*T_s/2;
       w.update_sensor_envelope(c, c_sensor_envelope);
       
+      // for probability-of-collision envelopes
+      HashMap<Float, Float> new_prob_table = new HashMap<Float, Float>();
+      for (float prob : c.prob_table.keySet()) {
+        float c_decel = c.prob_table.get(prob)*MAX_DECEL;
+        float case_1 = max(speed*speed/(2.0*MAX_DECEL) - c_v*c_v/(2.0*c_decel) + 0.5*LENGTH + 0.1, +0.5*LENGTH);
+        println("Case 1: " + case_1);
+        float case_2 = max(((speed - c_v)*(speed - c_v))/(2*(MAX_DECEL - c_decel)) + 0.5*LENGTH + 0.1, +0.5*LENGTH);
+        println("Case 2: " + case_2);
+        float new_safe_sep = 0;
+        // 3 CASES W/O DELAYS
+        if (c_decel >= MAX_DECEL) {
+          new_safe_sep = case_1;
+        } else if (speed > c_v) {
+          new_safe_sep = case_2;
+        }
+        println("safe_sep: " + new_safe_sep);
+        //float new_safe_sep = c_decel >= MAX_DECEL ? max(speed*speed/(2.0*MAX_DECEL) - c_v*c_v/(2.0*c_decel) + 0.5*LENGTH + 0.1, +0.5*LENGTH)
+        //                                          : max(((speed - c_v)*(speed - c_v))/(2*(MAX_DECEL - c_decel)*(MAX_DECEL - c_decel)) + 0.5*LENGTH + 0.1, +0.5*LENGTH);
+        // 3 CASES W/ DELAYS
+        //float new_safe_sep = c_decel >= MAX_DECEL ? max(speed*speed/(2.0*MAX_DECEL) - c_v*c_v/(2.0*c_decel) + 0.5*LENGTH + 0.1 + speed*e + MAX_ACCEL*e*e/2 - (c_v*e - c_decel*e*e/2), +0.5*LENGTH)
+        //                                          : max(((speed - c_v)*(speed - c_v))/(2*(MAX_DECEL - c_decel)*(MAX_DECEL - c_decel)) + 0.5*LENGTH + 0.1 + + speed*e + MAX_ACCEL*e*e/2 - (c_v*e - c_decel*e*e/2), +0.5*LENGTH);                                          
+        // 3 CASES W/ DELAYS, trying to account for cars behind
+        //float new_safe_sep = c.type > 0 ? max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - c_v*c_v/(2.0*c_decel), +0.5*LENGTH) 
+        //                              : max(-speed*speed/(2.0*acceleration)+0.5*LENGTH + c_v*c_v/(2.0*c_decel), +0.5*LENGTH);
+        // 1 CASE W/ DELAYS
+        //float new_safe_sep = max((speed + MAX_ACCEL*e - c_v + c_decel*e)*(speed + MAX_ACCEL*e - c_v + c_decel*e)/(2*(MAX_DECEL - c_decel)*(MAX_DECEL - c_decel))
+        //                          + speed*e + MAX_ACCEL*e*e/2 - (c_v*e - c_decel*e*e/2) + 0.5*LENGTH, +0.5*LENGTH);                       
+        new_prob_table.put(prob, new_safe_sep);
+      }
+      w.update_prob_envelopes(c, new_prob_table);
+      
       last_pos.put(c, c_pos.copy());
     }
   }
@@ -180,27 +233,10 @@ class Car {
     PVector d = PVector.sub(lead_car_cur_pos, lead_car_last_pos);
     float lead_car_v = d.mag()/dt;
     //float safe_sep = max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - lead_car_v*lead_car_v/(2.0*8)+0.1, +0.5*LENGTH)+0.5;
-    //float safe_sep;
-    //if (shadow_on) {
-    //  safe_sep = max(speed*speed/(2.0*MAX_DECEL)+
-    //    1/risk_level*skew*speed+(LENGTH/2 + (1/risk_level)*a*(1 + speed)) - lead_car_v*lead_car_v/(2.0*8)+0.1, 
-    //    +1/risk_level*skew*speed+(LENGTH/2 + (1/risk_level)*a*(1 + speed)))+0.5;
-    //} else {
-      safe_sep = max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - lead_car_v*lead_car_v/(2.0*MAX_DECEL), +0.5*LENGTH); // Assume other car has same MAX_DECEL as ego car
-    //}
+    safe_sep = max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - lead_car_v*lead_car_v/(2.0*MAX_DECEL), +0.5*LENGTH); // Assume other car has same MAX_DECEL as ego car
     lead_car_d = PVector.sub(lead_car_cur_pos, position).mag();
     sensor_envelope = speed*T_s + MAX_ACCEL*T_s*T_s/2 - lead_car_v*T_s + MAX_DECEL*T_s*T_s/2;
     boolean safe = PVector.sub(position, lead_car_cur_pos).mag()-0.5*cars.get(0).get_l()  >= (safe_sep + sensor_envelope + 0.1);
-
-    // DRAWS SAFE SEP ELLIPSE CENTERED AT EGO CAR
-    //pushMatrix();
-    //translate(position.x*pixels_per_meter+width/2, position.y*pixels_per_meter+height/2);
-    //pushStyle();
-    //noFill();
-    //stroke(0);
-    //ellipse(0, 0, 2*(safe_sep)*pixels_per_meter, 2*(safe_sep)*pixels_per_meter);
-    //popStyle();
-    //popMatrix();
     
     lead_car_last_pos = lead_car_cur_pos.copy();
     if (safe) return cur_acc;
@@ -244,7 +280,7 @@ class Car {
   }
 
   void check_overlap() {
-    if (!is_ego && lane_change_envelope_occupancy != null) {
+    if (type != 0 && lane_change_envelope_occupancy != null) {
       for (PVector loc : lane_change_envelope_occupancy) {
         world.envelope_grid[int(loc.x)][int(loc.y)] -= 0.5;
       }
@@ -280,7 +316,7 @@ class Car {
         }
         PVector loc = new PVector(x_index, y_index);
         if (!prevent_repeats[x_index][y_index]) {
-          if (!is_ego) {
+          if (type != 0) {
             if (i < -(other_car_safe_sep + other_car_sensor_envelope)*pixels_per_meter) {
               world.envelope_grid[x_index][y_index] += 0.5;
               lane_change_envelope_occupancy.add(loc);
@@ -289,7 +325,7 @@ class Car {
               envelope_occupancy.add(loc);
             }
           }
-          if (is_ego) {
+          if (type == 0) {
             if (world.envelope_grid[x_index][y_index] == 1) {
               overlap = true;
               cur_overlap = true;
@@ -350,6 +386,7 @@ class Car {
           if (world.occupancy_grid[x_index][y_index] > 1) {
             collision = true;
             cur_collision = true;
+            println("COLLISION");
           }
           prevent_repeats[x_index][y_index] = true;
         }
@@ -384,8 +421,7 @@ class Car {
     }
   }
 
-  void display_car(float pixels_per_meter) {
-    
+  void display_car(float pixels_per_meter, int car_index) {
     pushMatrix();
     translate(position.x*pixels_per_meter, position.y*pixels_per_meter);
     pushStyle();
@@ -401,51 +437,23 @@ class Car {
     rotate(orientation);
     noStroke();
     
-    // "shadow"
-    if (shadow_on) {
-      // ATTEMPT 1: ARBITRARY ELLIPSES
-      //pushStyle();
-      //ellipseMode(RADIUS);
-      //color c1 = color(0, 255*risk_level, 139/risk_level);
-      //fill(c1);  // Set fill to blue, tending towards green as risk level increases
-      //ellipse(
-      //  (1/risk_level)*skew*speed*pixels_per_meter, 
-      //  0, 
-      //  (LENGTH/2 + (1/risk_level)*a*(1 + speed))*pixels_per_meter, 
-      //  (WIDTH/2 + (1/risk_level)*b)*pixels_per_meter);
-        
-      //ellipseMode(RADIUS);
-      //color c2 = color(255, 255, 51);
-      //fill(c2);  // Set fill to yellow
-      //ellipse(
-      //  skew*speed*pixels_per_meter, 
-      //  0, 
-      //  (LENGTH/2 + a + a*speed)*pixels_per_meter, 
-      //  (WIDTH/2 + b)*pixels_per_meter);
-      //popStyle();
-      
-      pushStyle();
-      rectMode(CENTER);
-      color c1 = color(255, 165, 0);
-      color c2 = color(255, 255, 51);
-      color c3 = color(0, 0, 255, 65);
-      // ATTEMPT 2: SAFE SEP ENVELOPES AROUND OTHER CARS PROJECTED FROM EGO CAR
-      //fill(c1);
-      //rect((lead_car_d-safe_sep/2)*pixels_per_meter, 0, safe_sep*pixels_per_meter, WIDTH*pixels_per_meter);
-      if (!is_ego) {
-        fill(c1);
-        rect(-other_car_safe_sep/2*pixels_per_meter, 0, other_car_safe_sep*pixels_per_meter, WIDTH*pixels_per_meter);
-        fill(c2);
-        rect((-other_car_safe_sep-other_car_sensor_envelope/2)*pixels_per_meter, 0, other_car_sensor_envelope*pixels_per_meter, WIDTH*pixels_per_meter);
-        fill(c3);
-        rect((-other_car_safe_sep-other_car_sensor_envelope-lane_change_envelope/2)*pixels_per_meter, 0, 
-          lane_change_envelope*pixels_per_meter, WIDTH*pixels_per_meter);
-      } else {
-        //fill(c2);
-        //rect((LENGTH/2 + sensor_envelope/2)*pixels_per_meter, 0, sensor_envelope*pixels_per_meter, WIDTH*pixels_per_meter);
-      }
-      popStyle();      
-    }
+    // DRAW RECTANGULAR ENVELOPES
+    //pushStyle();
+    //rectMode(CENTER);
+    //color c1 = color(255, 165, 0);
+    //color c2 = color(255, 255, 51);
+    //color c3 = color(0, 0, 255, 65);
+    //if (!is_ego) {
+    //  fill(c1);
+    //  rect(-other_car_safe_sep/2*pixels_per_meter, 0, other_car_safe_sep*pixels_per_meter, WIDTH*pixels_per_meter);
+    //  fill(c2);
+    //  rect((-other_car_safe_sep-other_car_sensor_envelope/2)*pixels_per_meter, 0, other_car_sensor_envelope*pixels_per_meter, WIDTH*pixels_per_meter);
+    //  fill(c3);
+    //  rect((-other_car_safe_sep-other_car_sensor_envelope-lane_change_envelope/2)*pixels_per_meter, 0, 
+    //    lane_change_envelope*pixels_per_meter, WIDTH*pixels_per_meter);
+    //}
+    //popStyle();    
+    if (type != 0) draw_prob_envelopes();
     
     rectMode(CENTER);
     // body
@@ -495,11 +503,47 @@ class Car {
     //draw_origin(true);
     //draw_turn_radius(true);
     //draw_steering_angle(true);
+    display_dynamics(car_index);
     popMatrix();
     
     if (lidar != null) {
       lidar.show_boundary(show_lidar);
     }
+  }
+  
+  void draw_prob_envelopes() {
+    pushStyle();
+    noFill();
+    
+    for (float prob : prob_envelopes.keySet()) {
+      float safe_sep_for_prob = prob_envelopes.get(prob);
+      stroke((1-prob)*255, 0, 0);
+      ellipse(0, 0, 2*safe_sep_for_prob*pixels_per_meter, -2*safe_sep_for_prob*pixels_per_meter);
+      String label = String.format("%.1f", prob*100.0) + "%";
+      text(label, 0, -max(safe_sep_for_prob, 0.5*LENGTH)*pixels_per_meter - 5);
+    }
+    
+    popStyle();    
+  }
+  
+  void display_dynamics(int car_index) {
+    pushMatrix();
+    String speed_str = "speed: " + String.format("%.2f", speed) + " m/s";
+    String accel_str = "accel.: " + String.format("%.2f", acceleration) + "m/s^2";
+    
+    pushStyle();
+    if (car_index == 0) translate(0, -100);
+    else translate(0, 100);
+    rectMode(CENTER);
+    fill(255);
+    stroke(paint);
+    rect(0, 0, 120, 40);
+    fill(0);
+    textAlign(LEFT);
+    text(speed_str, -55, -4);
+    text(accel_str, -55, 12); 
+    popStyle();
+    popMatrix();
   }
   
   void draw_origin(boolean draw) {

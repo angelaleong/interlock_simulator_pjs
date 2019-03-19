@@ -2,7 +2,6 @@ class Path{
   PVector origin;
   float orientation;
   float margin = 0.1;
-  
   float m;
   
   Path(PVector a, float b){

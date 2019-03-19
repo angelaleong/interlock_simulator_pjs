@@ -1,7 +1,6 @@
 World w;
 RailroadCar test;
 Road main;
-//Car stationary, s1, s2, s3;
 
 int buttonX, buttonY; // position of play button
 int buttonSize = 50;
@@ -16,6 +15,11 @@ float pixels_per_meter = 6.705;
 ArrayList<Car> all_cars = new ArrayList<Car>();
 ArrayList<Road> all_roads = new ArrayList<Road>();
 
+// display ego car's aggregate probability of collision
+//int displayX, displayY;
+//int displaySize = 100;
+
+
 void setup() {
   size(1280, 740, P2D);
   mouseoverButtonColor = color(255);
@@ -25,6 +29,7 @@ void setup() {
   buttonY = height-100;
   pixelDensity(2);
 
+  // TODO: Set up display of ego car's aggregate probability of collision
   start();
 
   // turn off aliasing
@@ -106,13 +111,13 @@ void start() {
             break;
           case 4:
             accel = Float.parseFloat(args[i]);
-            if (i == 11) { // first entry is the ego car
-              test = new RailroadCar(road, which_lane, offset, true, true);
+            if (i == 11) { // first entry must be the ego car
+              test = new RailroadCar(road, which_lane, offset, 0);
               test.set_init_speed(speed);
               test.set_init_accel(accel);
-              test.set_colour(color(0, 255, 0));
+              test.set_color(color(0, 255, 0));
             } else {
-              Car other = new RailroadCar(road, which_lane, offset, true, false);
+              Car other = new RailroadCar(road, which_lane, offset, 1);
               other.set_name(name);
               other.set_init_speed(speed);
               other.set_init_accel(accel);
@@ -134,6 +139,33 @@ void start() {
 
   test.set_lidar();
   test.controller_on();
+  
+  //all_cars.get(1).set_type(-1);
+  set_up_prob(all_cars);
+}
+
+/* Set probabilities as follows:
+Lead car/Car in front:
+- ?0.01% - infinite decel. (sudden stop because of a meteorite)
+- 10% - 0.5 * MAX_DECEL
+- 20% - 0.25 * MAX_DECEL
+- 70% - 0 decel.
+*/
+
+void set_up_prob(ArrayList<Car> other_cars) {
+  // HashMap {x : y} where x = probability of decelerating at y, y = % of MAX_DECEL
+  HashMap<Float, Float> front_car_pt = new HashMap<Float, Float>();
+  front_car_pt.put(0.05, 1.0);
+  front_car_pt.put(0.1, 0.75);
+  front_car_pt.put(0.2, 0.5);
+  front_car_pt.put(0.65, 0.0);
+  other_cars.get(0).set_prob_table(front_car_pt);
+  
+  //HashMap<Float, Float> back_car_pt = new HashMap<Float, Float>();
+  //back_car_pt.put(0.7, 0.75);
+  //back_car_pt.put(0.2, 0.5);
+  //back_car_pt.put(0.1, 0.25);
+  //other_cars.get(1).set_prob_table(back_car_pt);
 }
 
 void draw() {
@@ -210,7 +242,7 @@ void keyPressed() {
     test.accelerate(8);
   }
   if (key == 's') {
-    test.accelerate(-8);
+    test.accelerate(-10);
   }
   if (key == '=' || key == '+') {
     pixels_per_meter += 1;
@@ -220,7 +252,7 @@ void keyPressed() {
   }
   if (key == 'k') {
     for (Car car : all_cars) {
-      car.accelerate(-8);
+      car.accelerate(-10); // TODO: map different keys to different % of MAX_DECEL
     }
   }
   if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5'){

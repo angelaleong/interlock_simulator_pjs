@@ -22,7 +22,6 @@ ArrayList<PVector> bresenham_high(float x0, float y0, float x1, float y1, float 
 
 ArrayList<PVector> bresenham_low(float x0, float y0, float x1, float y1, float d) {
   ArrayList<PVector> result = new ArrayList<PVector>();
-
   float dx = x1-x0;
   float dy = y1-y0;
   float yi = 1;

@@ -5,6 +5,7 @@ class World {
   ArrayList<Car> cars = new ArrayList<Car>();
   HashMap<Car, Float> safe_sep = new HashMap<Car, Float>();
   HashMap<Car, Float> sensor_envelope = new HashMap<Car, Float>();
+  HashMap<Car, HashMap<Float, Float>> prob_envelopes = new HashMap<Car, HashMap<Float, Float>>();
   float x_offset, y_offset;
   int w, h;
   boolean halt = false;
@@ -46,8 +47,22 @@ class World {
     return sensor_envelope.get(car);
   }
   
-  ArrayList<Car> query() {
+  // for probability-of-collision envelopes
+  World update_prob_envelopes(Car car, HashMap<Float, Float> prob_table) {
+    prob_envelopes.put(car, prob_table);
+    return this;
+  }
+  
+  HashMap<Float, Float> get_prob_envelopes(Car car) {
+    return prob_envelopes.get(car);
+  }
+  
+  ArrayList<Car> query_cars() {
     return cars;
+  }
+  
+  HashMap<Car, HashMap<Float, Float>> query_prob_envelopes() {
+    return prob_envelopes;
   }
   
   World timestep(float dt) {
@@ -68,8 +83,10 @@ class World {
   }
 
   World display_cars(float pixels_per_meter) {
+    int index = 0;
     for (Car car : cars) {
-      car.display_car(pixels_per_meter);
+      car.display_car(pixels_per_meter, index);
+      index++;
     }
     return this;
   }

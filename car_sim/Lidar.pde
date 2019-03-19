@@ -4,7 +4,6 @@ class Lidar {
   Car car;
   ArrayList<ArrayList<Car_Info>> buffer = new ArrayList<ArrayList<Car_Info>>();
 
-
   Lidar(float range_, float min_angle_, float max_angle_, 
     float angular_resolution_, World world_, Car car_) {
     range = range_;
@@ -16,8 +15,7 @@ class Lidar {
   }
 
   // returns an arraylist of all visible cars. each element of array list is of the form [relative_x, relative_y, orientation, width, length]
-
-  ArrayList<Car_Info> delayed_scan (float sensor_delay, float dt, boolean show_current, boolean show_delayed) {
+  ArrayList<Car_Info> delayed_scan(float sensor_delay, float dt, boolean show_current, boolean show_delayed) {
     buffer.add(scan(show_current));
     if (buffer.size() > int(sensor_delay/dt)) {
       buffer.remove(0);
