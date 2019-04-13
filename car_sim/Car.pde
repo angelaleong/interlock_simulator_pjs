@@ -64,6 +64,8 @@ class Car {
   HashMap<Float, Float> prob_envelopes = new HashMap<Float, Float>();
   float p_threshold = 0.65;
 
+  Interlock interlock = new Interlock(MAX_ACCEL, MAX_DECEL, LENGTH, WIDTH);
+
   Car(int _type) {
     type = _type;
   }
@@ -224,21 +226,22 @@ class Car {
   }
   
   float controller(float dt, float cur_acc, ArrayList<Car_Info> cars) {
-    if (cars == null || cars.size() == 0) return cur_acc;
-    if (lead_car_last_pos == null) {
-      lead_car_last_pos = new PVector(cars.get(0).x, cars.get(0).y);
-      return cur_acc;
-    }
-    PVector lead_car_cur_pos = new PVector(cars.get(0).x, cars.get(0).y);
-    PVector d = PVector.sub(lead_car_cur_pos, lead_car_last_pos);
-    float lead_car_v = d.mag()/dt;
-    //float safe_sep = max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - lead_car_v*lead_car_v/(2.0*8)+0.1, +0.5*LENGTH)+0.5;
-    safe_sep = max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - lead_car_v*lead_car_v/(2.0*MAX_DECEL), +0.5*LENGTH); // Assume other car has same MAX_DECEL as ego car
-    lead_car_d = PVector.sub(lead_car_cur_pos, position).mag();
-    sensor_envelope = speed*T_s + MAX_ACCEL*T_s*T_s/2 - lead_car_v*T_s + MAX_DECEL*T_s*T_s/2;
-    boolean safe = PVector.sub(position, lead_car_cur_pos).mag()-0.5*cars.get(0).get_l()  >= (safe_sep + sensor_envelope + 0.1);
+    boolean safe = interlock.is_scenario_safe(this.T_s, dt, this.speed, this.position.x, this.position.y, cars);
+    //if (cars == null || cars.size() == 0) return cur_acc;
+    //if (lead_car_last_pos == null) {
+    //  lead_car_last_pos = new PVector(cars.get(0).x, cars.get(0).y);
+    //  return cur_acc;
+    //}
+    //PVector lead_car_cur_pos = new PVector(cars.get(0).x, cars.get(0).y);
+    //PVector d = PVector.sub(lead_car_cur_pos, lead_car_last_pos);
+    //float lead_car_v = d.mag()/dt;
+    ////float safe_sep = max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - lead_car_v*lead_car_v/(2.0*8)+0.1, +0.5*LENGTH)+0.5;
+    //safe_sep = max(speed*speed/(2.0*MAX_DECEL)+0.5*LENGTH - lead_car_v*lead_car_v/(2.0*MAX_DECEL), +0.5*LENGTH); // Assume other car has same MAX_DECEL as ego car
+    //lead_car_d = PVector.sub(lead_car_cur_pos, position).mag();
+    //sensor_envelope = speed*T_s + MAX_ACCEL*T_s*T_s/2 - lead_car_v*T_s + MAX_DECEL*T_s*T_s/2;
+    //boolean safe = PVector.sub(position, lead_car_cur_pos).mag()-0.5*cars.get(0).get_l()  >= (safe_sep + sensor_envelope + 0.1);
     
-    lead_car_last_pos = lead_car_cur_pos.copy();
+    //lead_car_last_pos = lead_car_cur_pos.copy();
     if (safe) return cur_acc;
     return -MAX_DECEL;
   }
