@@ -14,14 +14,14 @@ public class Interlock{
     float width;
     float T_s;
     ArrayList<Car_Info> old_cars = new ArrayList<Car_Info>();
-    Interlock(float max_accel, float max_decel, float length, float width){
+    public Interlock(float max_accel, float max_decel, float length, float width){
         this.max_accel = max_accel;
         this.max_decel = max_decel;
         this.length = length;
         this.width = width;
     }
 
-    boolean is_scenario_safe(float T_s, float dt, float speed, float x, float y, ArrayList<Car_Info> cars){
+    public boolean is_scenario_safe(float T_s, float dt, float speed, float x, float y, ArrayList<Car_Info> cars){
         /*
         Evaluates if a scenario is safe given the interlock rules.
         dt: the time passed since interlock last ran

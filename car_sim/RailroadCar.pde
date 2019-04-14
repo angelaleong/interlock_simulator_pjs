@@ -133,7 +133,7 @@ class RailroadCar extends Car {
   
   RailroadCar timestep(float dt) {
     path_follow(0.05, 3, 0);
-    ArrayList<Car_Info> car_info = new ArrayList<Car_Info>();
+    ArrayList<Car_Info.Car_Info> car_info = new ArrayList<Car_Info.Car_Info>();
     if (lidar != null) {
       car_info = lidar.scan(false);
     }

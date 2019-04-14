@@ -2,7 +2,7 @@ class Lidar {
   float range, min_angle, max_angle, angular_resolution;
   World world;
   Car car;
-  ArrayList<ArrayList<Car_Info>> buffer = new ArrayList<ArrayList<Car_Info>>();
+  ArrayList<ArrayList<Car_Info.Car_Info>> buffer = new ArrayList<ArrayList<Car_Info.Car_Info>>();
 
   Lidar(float range_, float min_angle_, float max_angle_, 
     float angular_resolution_, World world_, Car car_) {
@@ -15,14 +15,14 @@ class Lidar {
   }
 
   // returns an arraylist of all visible cars. each element of array list is of the form [relative_x, relative_y, orientation, width, length]
-  ArrayList<Car_Info> delayed_scan(float sensor_delay, float dt, boolean show_current, boolean show_delayed) {
+  ArrayList<Car_Info.Car_Info> delayed_scan(float sensor_delay, float dt, boolean show_current, boolean show_delayed) {
     buffer.add(scan(show_current));
     if (buffer.size() > int(sensor_delay/dt)) {
       buffer.remove(0);
       if (show_delayed) {
         pushMatrix();
         translate(world.x_offset, world.y_offset);
-        for (Car_Info c : buffer.get(0)) {
+        for (Car_Info.Car_Info c : buffer.get(0)) {
           pushMatrix();
           translate(c.get_x()*pixels_per_meter, c.get_y()*pixels_per_meter);
           rotate(c.get_orientation());
@@ -43,8 +43,8 @@ class Lidar {
     return null;
   }
 
-  ArrayList<Car_Info> scan(boolean show) {
-    ArrayList<Car_Info> visible_cars = new ArrayList<Car_Info>();
+  ArrayList<Car_Info.Car_Info> scan(boolean show) {
+    ArrayList<Car_Info.Car_Info> visible_cars = new ArrayList<Car_Info.Car_Info>();
     for (Car c : world.cars) {
       if (c != this.car && c.current_occupancy != null && dist(c.position.x, c.position.y, car.position.x, car.position.y) < range+dist(0, 0, c.LENGTH*0.5, c.WIDTH*0.5)+dist(0, 0, car.LENGTH*0.5, car.WIDTH*0.5)) {
         stroke(155);
@@ -85,7 +85,7 @@ class Lidar {
             translate(world.x_offset, world.y_offset);
             stroke(255, 0, 0);
             line(c.position.x*pixels_per_meter, c.position.y*pixels_per_meter, car.position.x*pixels_per_meter, car.position.y*pixels_per_meter);
-            visible_cars.add(new Car_Info(c.position.x, c.position.y, c.orientation, c.WIDTH, c.LENGTH));
+            visible_cars.add(new Car_Info.Car_Info(c.position.x, c.position.y, c.orientation, c.WIDTH, c.LENGTH));
             popMatrix();
             break;
           }
@@ -95,7 +95,7 @@ class Lidar {
     if (show) {
       pushMatrix();
       translate(car.position.x*pixels_per_meter+world.x_offset, car.position.y*pixels_per_meter+world.y_offset);
-      for (Car_Info c : visible_cars) {
+      for (Car_Info.Car_Info c : visible_cars) {
         pushMatrix();
         translate(c.get_x()*pixels_per_meter, c.get_y()*pixels_per_meter);
         rotate(c.get_orientation());

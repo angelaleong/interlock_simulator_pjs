@@ -64,7 +64,7 @@ class Car {
   HashMap<Float, Float> prob_envelopes = new HashMap<Float, Float>();
   float p_threshold = 0.65;
 
-  Interlock interlock = new Interlock(MAX_ACCEL, MAX_DECEL, LENGTH, WIDTH);
+  Interlock.Interlock interlock = new Interlock.Interlock(MAX_ACCEL, MAX_DECEL, LENGTH, WIDTH);
 
   Car(int _type) {
     type = _type;
@@ -225,7 +225,7 @@ class Car {
     }
   }
   
-  float controller(float dt, float cur_acc, ArrayList<Car_Info> cars) {
+  float controller(float dt, float cur_acc, ArrayList<Car_Info.Car_Info> cars) {
     boolean safe = interlock.is_scenario_safe(this.T_s, dt, this.speed, this.position.x, this.position.y, cars);
     //if (cars == null || cars.size() == 0) return cur_acc;
     //if (lead_car_last_pos == null) {
@@ -247,7 +247,7 @@ class Car {
   }
   
   Car timestep(float dt) {
-    ArrayList<Car_Info> cars = new ArrayList<Car_Info>();
+    ArrayList<Car_Info.Car_Info> cars = new ArrayList<Car_Info.Car_Info>();
     if (lidar != null) {
       cars = lidar.scan(show_lidar);
     }
