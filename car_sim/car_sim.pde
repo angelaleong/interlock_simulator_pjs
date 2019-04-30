@@ -15,11 +15,6 @@ float pixels_per_meter = 6.705;
 ArrayList<Car> all_cars = new ArrayList<Car>();
 ArrayList<Road> all_roads = new ArrayList<Road>();
 
-// display ego car's aggregate probability of collision
-//int displayX, displayY;
-//int displaySize = 100;
-
-
 void setup() {
   size(1280, 740, P2D);
   mouseoverButtonColor = color(255);
@@ -140,17 +135,8 @@ void start() {
   test.set_lidar();
   test.controller_on();
   
-  //all_cars.get(1).set_type(-1);
   set_up_prob(all_cars);
 }
-
-/* Set probabilities as follows:
-Lead car/Car in front:
-- ?0.01% - infinite decel. (sudden stop because of a meteorite)
-- 10% - 0.5 * MAX_DECEL
-- 20% - 0.25 * MAX_DECEL
-- 70% - 0 decel.
-*/
 
 void set_up_prob(ArrayList<Car> other_cars) {
   // HashMap {x : y} where x = probability of decelerating at y, y = % of MAX_DECEL
@@ -160,12 +146,6 @@ void set_up_prob(ArrayList<Car> other_cars) {
   front_car_pt.put(0.2, 0.5);
   front_car_pt.put(0.65, 0.0);
   other_cars.get(0).set_prob_table(front_car_pt);
-  
-  //HashMap<Float, Float> back_car_pt = new HashMap<Float, Float>();
-  //back_car_pt.put(0.7, 0.75);
-  //back_car_pt.put(0.2, 0.5);
-  //back_car_pt.put(0.1, 0.25);
-  //other_cars.get(1).set_prob_table(back_car_pt);
 }
 
 void draw() {
@@ -263,6 +243,7 @@ void keyPressed() {
   } 
 }
 
+// MANUAL STEERING
 void keyReleased() {
   if (key == 'a' || key == 'd') {
     test.keyboard_steering(0);
