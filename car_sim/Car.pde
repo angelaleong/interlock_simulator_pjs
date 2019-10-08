@@ -63,6 +63,8 @@ class Car {
   HashMap<Float, Float> prob_table = new HashMap<Float, Float>();
   HashMap<Float, Float> prob_envelopes = new HashMap<Float, Float>();
   float p_threshold = 0.65;
+  
+  float clock = 0;
 
   Interlock.Interlock interlock = new Interlock.Interlock(MAX_ACCEL, MAX_DECEL, LENGTH, WIDTH);
 
@@ -247,6 +249,7 @@ class Car {
   }
   
   Car timestep(float dt) {
+    clock += dt;
     ArrayList<Car_Info.Car_Info> cars = new ArrayList<Car_Info.Car_Info>();
     if (lidar != null) {
       cars = lidar.scan(show_lidar);

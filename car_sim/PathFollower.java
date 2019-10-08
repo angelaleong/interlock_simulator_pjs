@@ -2,13 +2,16 @@ package PathFollower;
 import java.util.ArrayList;
 import java.io.*;
 import java.lang.Math; 
+//import Certificate.Certificate;
 
 public class PathFollower{
     String config_file = null;
     // each element has 3 components: x, y, speed
     public ArrayList<double[]> waypoints = new ArrayList<double[]>();
-     
     int last_waypoint = 0;
+    
+    //Certificate cert = new Certificate();
+    
     public PathFollower(){
         this.last_waypoint = 0;
     }
@@ -52,7 +55,18 @@ public class PathFollower{
         System.out.println("could not find a point");
         return this.waypoints.get(this.last_waypoint);
     }
+    
     public double d(double x1, double y1, double x2, double y2){
         return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
     }
+    
+    //public void genCert() {
+    //}
+    
+    //public void timestep(float dt){
+    //  cert.increment_speed_timestamp(dt);
+    //  cert.increment_lidar_timestamp(dt);
+    //  double[] nextPoint = pickNextPoint();
+    //  interlock.check(nextPoint, cert);
+    //}
 }

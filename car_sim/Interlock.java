@@ -1,6 +1,7 @@
 package Interlock;
 
 import Car_Info.Car_Info;
+//import Certificate.Certificate;
 import java.util.ArrayList;
 import java.lang.Math; 
 
@@ -20,7 +21,53 @@ public class Interlock{
         this.length = length;
         this.width = width;
     }
+    
+    //public boolean check(double[] nextPoint) {
+      //// 1st check: timestamps of speed and LIDAR readings are current
+      //float speed_timestamp = cert.get_speed_timestamp();
+      //float lidar_timestamp = cert.get_lidar_timestamp();
+      //if (car.clock != speed_timestamp || car.clock != lidar_timestamp) { 
+      //  return false;
+      //}
+      
+      //// 2nd check: LIDAR readings corroborate separation distance claimed by planner
+      //float d = cert.get_d();
+      //// if range of LIDAR < d:
+      ////    we cannot claim anything
+      //// else:
+      ////    if LIDAR sees another car:
+      ////        check if distance to car (from Car_Info) is > d
+      ////    else:
+      ////        d < distance to any car ahead
+      //if (cert.lidar_range < d) {
+      //  return false; 
+      //} else {
+      //  if (!cert.lidar_points.isEmpty()) {
+      //    if (cert.lidar_points.size() > 1) {
+      //      return false; // unhandled: we don't know what to do when there are multiple cars on the road
+      //    } else {
+      //      Car_Info lead_car = cert.lidar_points.get(0);
+      //      double dx = (lead_car.get_x() - cert.x); // old_cars.get(0) is ego?
+      //      double dy = (lead_car.get_y() - cert.y);
+      //      float sep = (float)Math.sqrt(dx*dx + dy*dy);
+      //      return d <= (sep - .5*lead_car.get_l())
+      //    }
+      //  } else {
+      //    return true;
+      //  }
+      //}
+      
+    //  // 3rd check: nextPoint is safe
+    //  // safe separation formula 
+    //  double speed = nextPoint.get(2);
+    //  safe_sep = max(speed*speed/(2.0*max_decel)+0.5*LENGTH, +0.5*LENGTH); // Assume other car has same MAX_DECEL as ego car
+    //  if (d < safe_sep) {
+    //    return false;
+    //  }
 
+    //  return true;
+    //}
+    
     public boolean is_scenario_safe(float T_s, float dt, float speed, float x, float y, ArrayList<Car_Info> cars){
         /*
         Evaluates if a scenario is safe given the interlock rules.
@@ -57,4 +104,3 @@ public class Interlock{
         return safe;
     }
 }
-
